@@ -18,7 +18,7 @@ https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 
 **Some other info** 
 
-* File name examples: `coverage.json`, `domain.coverage.json`, `api.loadbalancer.coverage.json`
+* File name examples: `coverage.json`, `domain-coverage.json`, `api-loadbalancer-coverage.json`
 * The coverage files can be for any project. The Extension works with multiple opened IDE's - It will only work with the files (Filepaths) that it finds in the coverlet.json and with the current window that you are working with (across several IDE's)
  * Large amounts of files in the coverlet directory may cause some lag during reload process - Please let me know how you get on. 
 * Large amounts of tests (in max several files) should not really be much of a problem.
@@ -31,7 +31,7 @@ In the `c:\coverlet` directory I created a PowerShell Script which I use `dotnet
 
 ```
 dotnet test C:\Code\domain\Domain.Tests.Integration\Domain.Tests.Integration.csproj
-coverlet  C:\Code\domain\Domain.Tests.Integration\bin\Debug\Domain.Tests.Integration.dll --target "dotnet" --targetargs "test C:\Code\domain\Domain.Tests.Integration --no-build" --output "C:\coverlet\domain.integration.coverage.json"
+coverlet  C:\Code\domain\Domain.Tests.Integration\bin\Debug\Domain.Tests.Integration.dll --target "dotnet" --targetargs "test C:\Code\domain\Domain.Tests.Integration --no-build" --output "C:\coverlet\domain-integration-coverage" --format json
 
 pause
 ```
