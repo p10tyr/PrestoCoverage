@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="PrestoCoverage.3efcbc7f-b8c8-4a34-83c0-80772766a8ac" Version="1.6" Language="en-US" Publisher="Piotr Kula" />
+        <Identity Id="PrestoCoverage.3efcbc7f-b8c8-4a34-83c0-80772766a8ac" Version="1.7" Language="en-US" Publisher="Piotr Kula" />
         <DisplayName>PrestoCoverage</DisplayName>
         <Description xml:space="preserve">Everybody wants you to write Unit Tests but there is no free and fast way to visualise code coverage in Visual Studio, until now!
 
@@ -18,4 +18,7 @@ Best used with Coverlet!</Description>
     <Prerequisites>
         <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0,16.0)" DisplayName="Visual Studio core editor" />
     </Prerequisites>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+    </Assets>
 </PackageManifest>

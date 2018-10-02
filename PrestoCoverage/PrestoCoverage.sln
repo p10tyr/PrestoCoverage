@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrestoCoverage", "PrestoCoverage\PrestoCoverage.csproj", "{CBCFB79B-932D-4C49-A1FE-B7831A597609}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrestoCoverage.Sample", "PrestoCoverage.Sample\PrestoCoverage.Sample.csproj", "{F576FE9E-0339-4916-97CB-5DF0247E20F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrestoCoverage.UnitTest", "PrestoCoverage.UnitTest\PrestoCoverage.UnitTest.csproj", "{20D7C5F6-D9B5-463F-BC97-D9138C9177F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{CBCFB79B-932D-4C49-A1FE-B7831A597609}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBCFB79B-932D-4C49-A1FE-B7831A597609}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBCFB79B-932D-4C49-A1FE-B7831A597609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F576FE9E-0339-4916-97CB-5DF0247E20F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F576FE9E-0339-4916-97CB-5DF0247E20F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F576FE9E-0339-4916-97CB-5DF0247E20F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F576FE9E-0339-4916-97CB-5DF0247E20F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20D7C5F6-D9B5-463F-BC97-D9138C9177F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20D7C5F6-D9B5-463F-BC97-D9138C9177F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20D7C5F6-D9B5-463F-BC97-D9138C9177F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20D7C5F6-D9B5-463F-BC97-D9138C9177F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
