@@ -1,12 +1,13 @@
 # PrestoCoverage
-Visual Studio Extension for simple coverage visuals
+### The fast and free Visual Studio 2017 code coverage Extension. Best used with Coverlet.
 
-Here is a very basic version of the extension. I have optimised it a bit so it doesn't slow down the IDE with some caching techniques. This is a very fast release for your testing convenience only and there are bugs in here..I use this for my self so I try and reduce bugs and every time I fix or tweak something i increment the version number. I use coverlet and this extension to help me with my work.
+I use Coverlet for DOT NET Core coverage reporting and then I made this to help me during my daily work. As I am not a "Extensions developer" some things may bot be as beatiful as they should be but I try my best to keep things fast, prevent crashing and make it practical for daily use.
 
-1. Install VSIX Extension v1.4 (compiled in Release mode) (download at bottom)
-1. Run coverlet and save all results to `c:\coverlet\`
-1. Extension will load any files that follow the convention of `*coverage.json`
+1. Install the PrestoCoverage extension 
+1. Run coverlet and save all results to `c:\coverlet\` (Check tips at the bottom)
+1. PrestoCoverage will load any files that follow the convention of `*coverage.json`
 1. When ANY one coverage file changes (LastWriteTime) it will purge the cache and reload everything as needed again from fresh
+1. Coverage files can be for any project/solution and supports miltiple instances of Visual Studio
 
 ![image](https://user-images.githubusercontent.com/1249683/46355804-6e512200-c659-11e8-862b-205401d8b555.png)
 
@@ -15,12 +16,12 @@ Here is a very basic version of the extension. I have optimised it a bit so it d
 
 **Download**
 
-[VSIXProject1.4.vsix.zip](https://github.com/tonerdo/coverlet/files/2438341/VSIXProject1.4.vsix.zip)
+https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 
 **Some other info** 
 
-  * File name examples: `coverage.json`, `domain.coverage.json`, `api.loadbalancer.coverage.json`
-  * The coverage files can be for any project. The Extension works with multiple opened IDE's - It will only work with the files (Filepaths) that it finds in the coverlet.json and with the current window that you are working with (across several IDE's)
+* File name examples: `coverage.json`, `domain.coverage.json`, `api.loadbalancer.coverage.json`
+* The coverage files can be for any project. The Extension works with multiple opened IDE's - It will only work with the files (Filepaths) that it finds in the coverlet.json and with the current window that you are working with (across several IDE's)
  * Large amounts of files in the coverlet directory may cause some lag during reload process - Please let me know how you get on. 
 * Large amounts of tests (in max several files) should not really be much of a problem.
 * Adding, removing or changing files in the directory, will automatically reload the data in the extension but only once you switch a tab or open/close a file in VS
