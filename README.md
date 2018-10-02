@@ -42,5 +42,5 @@ pause
 * I am not a "Extensions developer" some things may bot be az they shud beatiful as they should. *doh*
 * There will be bugs!
 * It is not as user friendly as I would want it.. yet.
-* It is practical for daily use. (Since I do...)
+* It is practical for daily use. (Since I use it daily...)
 
