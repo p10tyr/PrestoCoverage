@@ -3,7 +3,16 @@
     <Metadata>
         <Identity Id="PrestoCoverage.3efcbc7f-b8c8-4a34-83c0-80772766a8ac" Version="1.5" Language="en-US" Publisher="Piotr Kula" />
         <DisplayName>PrestoCoverage</DisplayName>
-        <Description xml:space="preserve">Empty VSIX Project.</Description>
+        <Description xml:space="preserve">Everybody wants you to write Unit Tests but there is no free and fast way to visualise code coverage in Visual Studio $excpet Enterpri$e$
+
+PrestoCoverage was inspired by the work done in Coverlet code coverage global dotnet core tool. A very basic implementaion exists for Coverlet right here
+
+For the future I want to make this - "The fast and versatile code covergae extension". I hope I can use Coverlet under the hood for somethings but supporting other formats is the versatility aspect I am aiming for.
+
+
+The end goal is to support mutiple formats, live coverage tracking and maybe live testing </Description>
+        <MoreInfo>https://github.com/ppumkin/PrestoCoverage</MoreInfo>
+        <Tags>Tools,Coding,Testing,Coverlet, Unit Testing, code coverage</Tags>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[15.0, 16.0)" />
