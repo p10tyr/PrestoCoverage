@@ -38,9 +38,9 @@ pause
 
 **Disclaimer**
 
-I made this to help me during my daily work. 
-I am not a "Extensions developer" some things may bot be as beatiful as they should. 
-There will be bugs
-It is not as user friendly as I would want it.. yet.
-It is practical for daily use. (Since I do...)
+* I made this to help me during my daily work. 
+* I am not a "Extensions developer" some things may bot be as beatiful as they should. 
+* There will be bugs
+* It is not as user friendly as I would want it.. yet.
+* It is practical for daily use. (Since I do...)
 
