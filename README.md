@@ -1,15 +1,14 @@
 # PrestoCoverage
 ### The fast and free Visual Studio 2017 code coverage Extension. Best used with Coverlet.
 
-You should use the excellent Coverlet tool for .NET Core coverage reports
-Then you should install this extension to help you visualise which lines are covered in Visual Studio 2017
+* You should use the excellent Coverlet tool for .NET Core coverage reports.
+* Then you should install this extension to help you visualise which lines are covered in Visual Studio 2017
 
 ![image](https://user-images.githubusercontent.com/1249683/46355804-6e512200-c659-11e8-862b-205401d8b555.png)
 
 **Installation**
 
 https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
-
 
 1. Install the PrestoCoverage extension 
 1. Run coverlet and save all results to `c:\coverlet\` (Check tips at the bottom)
