@@ -1,8 +1,8 @@
 # PrestoCoverage
-### The fast and free Visual Studio 2017 code coverage Extension. Best used with Coverlet.
+### The free and fast Visual Studio 2017 code coverage tool built around Coverlet, the best .NET Core coverage tool!
 
-* You should use the excellent Coverlet tool for .NET Core coverage reports.
-* Then you should install this extension to help you visualise which lines are covered in Visual Studio 2017
+* Use Coverlet to generate .NET Core coverage reports.
+* Install PrestoCoverage to instantly show you which lines were vistied by your tests.
 
 ![prestocoverage demo2](https://user-images.githubusercontent.com/1249683/46407265-3653e880-c706-11e8-9106-18283be60a9f.gif)
 
@@ -13,12 +13,11 @@ https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 1. Install the PrestoCoverage extension 
 1. Run coverlet and save all results to `c:\coverlet\` (Check tips at the bottom)
 1. PrestoCoverage will load any files that follow the convention of `*coverage.json`
-1. When ANY one coverage file changes (LastWriteTime) it will purge the cache and reload everything as needed again from fresh
+1. Visual Studio UI will refresh as files get added, deleted, renamed or udpated.
 1. Coverage files can be for any project/solution and supports miltiple instances of Visual Studio
 
 **TODO**
 
-* Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
 * Visit Merging - https://github.com/ppumkin/PrestoCoverage/issues/3 
 * Automatic Coverlet Execution - https://github.com/ppumkin/PrestoCoverage/issues/5
 
@@ -42,6 +41,8 @@ coverlet  C:\Code\domain\Domain.Tests.Integration\bin\Debug\Domain.Tests.Integra
 pause
 ```
 
+
+
 **Disclaimer**
 
 * I made this to help me during my daily work. 
@@ -50,3 +51,6 @@ pause
 * It is not as user friendly as I would want it.. yet.
 * It is practical for daily use. (Since I use it daily...)
 
+**FEATURES ADDED SO FAR**
+
+* Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
