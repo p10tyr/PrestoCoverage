@@ -54,3 +54,4 @@ pause
 **FEATURES ADDED SO FAR**
 
 * Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
+* Detect source code change - https://github.com/ppumkin/PrestoCoverage/issues/6
