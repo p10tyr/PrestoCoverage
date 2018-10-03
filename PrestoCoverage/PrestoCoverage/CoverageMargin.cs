@@ -55,16 +55,22 @@ namespace PrestoCoverage
 
             var filename = GetFileName(buffer);
 
+            var doc = _textView.TextSnapshot.GetOpenDocumentInCurrentContextWithChanges();
+            doc.TryGetTextVersion(out _loadedDocVersion);
+
             CreateFileWatcher(Settings.WatchFolder);
         }
 
-
+        private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
 
         IEnumerable<ITagSpan<MarginCoverageTag>> ITagger<MarginCoverageTag>.GetTags(NormalizedSnapshotSpanCollection spans)
         {
             foreach (SnapshotSpan curSpan in spans)
             {
                 var doc = curSpan.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
+
+                var currentLineCount = curSpan.Snapshot.LineCount;
+                doc.TryGetTextVersion(out var currentDocVersion);
 
                 Dictionary<int, int> line_visits = Loaders.CoverletLoader.GetLinesForDocument(doc.FilePath);
 
@@ -73,11 +79,18 @@ namespace PrestoCoverage
                 if (lines.Count < 1)
                     continue;
 
+                if (_loadedDocVersion != currentDocVersion)
+                    continue;
+
+
                 foreach (var ln in curSpan.Snapshot.Lines.Where(l => lines.Contains(l.LineNumber + 1)))
                 {
                     var coverage = line_visits[ln.LineNumber + 1];
 
                     System.Windows.Media.Brush brushColor = coverage > 0 ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.Red;
+
+                    //if (_loadedDocVersion != currentDocVersion)
+                    //    brushColor = System.Windows.Media.Brushes.Orange;
 
                     SnapshotSpan todoSpan = new SnapshotSpan(ln.Start, ln.End);
                     yield return new TagSpan<MarginCoverageTag>(todoSpan, new MarginCoverageTag(brushColor));
@@ -91,8 +104,6 @@ namespace PrestoCoverage
                 typeof(ITextDocument), out ITextDocument document);
             return document == null ? null : document.FilePath;
         }
-
-
 
         public void CreateFileWatcher(string path)
         {
