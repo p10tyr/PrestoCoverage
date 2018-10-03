@@ -11,8 +11,6 @@ namespace PrestoCoverage.Loaders
     {
 
         public static string CoverageDirectory { get; set; }
-        public static Dictionary<string, Classes> CoverletModules => Refresh();
-
 
 
         private static Dictionary<string, Classes> _loadedClasses = null;
@@ -23,7 +21,6 @@ namespace PrestoCoverage.Loaders
         static CoverletLoader()
         {
             CoverageDirectory = @"c:\coverlet";
-            Refresh();
         }
 
 
@@ -39,7 +36,7 @@ namespace PrestoCoverage.Loaders
             }
         }
 
-        internal static Dictionary<string, Classes> Refresh()
+        internal static Dictionary<string, Classes> GetCoverletModules()
         {
             string[] coverageFilesOnDisk = Directory.GetFiles(CoverageDirectory, "*coverage.json");
 
@@ -105,12 +102,12 @@ namespace PrestoCoverage.Loaders
 
         public static Dictionary<int, int> GetLinesForDocument(string coverletFilePath)
         {
-            if (_documentLineNumbers.TryGetValue(coverletFilePath, out var LineResults))
-            {
-                return LineResults;
-            }
+            //First check if anything has changed with files and invalidate all cache
+            var currentSpanDoc = GetCoverletModules().FirstOrDefault(x => x.Key == coverletFilePath);
 
-            var currentSpanDoc = CoverletModules.FirstOrDefault(x => x.Key == coverletFilePath);
+            //If nothing has changed we can just return the previously calculated line values
+            if (_documentLineNumbers.TryGetValue(coverletFilePath, out var LineResults))
+                return LineResults;
 
             if (currentSpanDoc.Value != null) //.Any())
             {
@@ -121,10 +118,6 @@ namespace PrestoCoverage.Loaders
                     .SelectMany(lns => lns.Lines)
                     //.Select(n => new Coverlet.Lines() {  } )
                     .ToDictionary(line => line.Key, line => line.Value);
-
-
-                //.Select(x => x.Key)
-                //.ToList();
 
                 _documentLineNumbers.Add(coverletFilePath, lines);
             }

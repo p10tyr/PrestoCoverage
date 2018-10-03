@@ -6,7 +6,7 @@
         public int NeverUsed { get; set; }
         public int Counter { get; set; }
 
-        private int _privateCounter;
+        private readonly int _privateCounter;
 
 
         public int Count(int a, int b)
