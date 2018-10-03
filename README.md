@@ -16,6 +16,12 @@ https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 1. When ANY one coverage file changes (LastWriteTime) it will purge the cache and reload everything as needed again from fresh
 1. Coverage files can be for any project/solution and supports miltiple instances of Visual Studio
 
+**TODO**
+
+* Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
+* Visit Merging - https://github.com/ppumkin/PrestoCoverage/issues/3 
+* 
+
 **Some other info** 
 
 * File name examples: `coverage.json`, `domain-coverage.json`, `api-loadbalancer-coverage.json`
