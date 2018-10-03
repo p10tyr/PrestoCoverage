@@ -1,0 +1,23 @@
+<svg width="1440" height="900" xmlns="http://www.w3.org/2000/svg">
+ <style type="text/css">.st0{fill:#39B54A;}
+	.st1{fill:#1A1A1A;}
+	.st2{fill:#ED1C24;}</style>
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="402" width="582" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <polygon id="svg_1" points="-633,418.6 -778.5,516.8 -847,481.4 -778,547.1 " class="st0"/>
+  <polygon id="svg_2" points="-825.3,486.1 -825.3,352.9 -693.5,352.9 -655.2,390.2 -655.2,427.1 -668.2,435.4 -668.2,390.9   -693.2,390.9 -693.2,366.9 -812.3,366.9 -812.3,493.5 " class="st1"/>
+  <rect id="svg_3" height="86" width="8.5" class="st1" transform="matrix(-1.83697e-16,1,-1,-1.83697e-16,-368.4194,1153.1523) " y="349.4" x="-765"/>
+  <rect id="svg_4" height="109.6" width="8.5" class="st1" transform="matrix(-1.83697e-16,1,-1,-1.83697e-16,-337.2406,1160.7108) " y="356.9" x="-753.2"/>
+  <rect id="svg_5" height="109.6" width="8.5" class="st1" transform="matrix(-1.83697e-16,1,-1,-1.83697e-16,-317.872,1180.0795) " y="376.3" x="-753.2"/>
+  <rect id="svg_6" height="86" width="8.5" class="st1" transform="matrix(-1.83697e-16,1,-1,-1.83697e-16,-309.8411,1211.7307) " y="408" x="-765"/>
+  <g id="svg_7">
+   <path id="svg_10" d="m669,489.29999l-14,15l51,50l82.5,-82.5l-15,-14l-68,68" stroke-opacity="null" stroke-linecap="null" stroke-linejoin="null" stroke-width="0" stroke="null" fill="#007f00"/>
+   <path id="svg_9" d="m779.5,345.8l-90,0l-97,96l55,55l14,-14l-40,-41l74,-74l40,40l39,-40l44,45l-36,36l14,15l51,-51l-68,-67zm-44,42l-22,-22l43,0l-21,22z" class="st1"/>
+  </g>
+ </g>
+</svg>
