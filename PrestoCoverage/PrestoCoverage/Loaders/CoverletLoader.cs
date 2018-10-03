@@ -20,7 +20,7 @@ namespace PrestoCoverage.Loaders
 
         static CoverletLoader()
         {
-            CoverageDirectory = @"c:\coverlet";
+            CoverageDirectory = Settings.WatchFolder;
         }
 
 

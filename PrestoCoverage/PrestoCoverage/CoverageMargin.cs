@@ -6,23 +6,28 @@ using Microsoft.VisualStudio.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 
 namespace PrestoCoverage
 {
-    [Export(typeof(ITaggerProvider))]
-    [ContentType("code")]
-    [TagType(typeof(MarginCoverageTag))]
-    internal class CommentTaggerProvider : ITaggerProvider
-    {
-        public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
-        {
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
 
-            return new CommentTagger() as ITagger<T>;
+    public static class Settings
+    {
+        public const string WatchFolder = @"c:\coverlet";
+    }
+
+    [Export(typeof(IViewTaggerProvider))]
+    [ContentType("text")]
+    [TagType(typeof(MarginCoverageTag))]
+    internal class CommentTaggerProvider : IViewTaggerProvider
+    {
+        public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
+        {
+            if (textView == null)
+                return null;
+
+            return new CommentTagger(textView, buffer) as ITagger<T>;
         }
     }
 
@@ -38,6 +43,23 @@ namespace PrestoCoverage
 
     internal class CommentTagger : ITagger<MarginCoverageTag>
     {
+        public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+
+        private readonly ITextView _textView;
+        private readonly ITextBuffer _buffer;
+
+        public CommentTagger(ITextView textView, ITextBuffer buffer)
+        {
+            _textView = textView;
+            _buffer = buffer;
+
+            var filename = GetFileName(buffer);
+
+            CreateFileWatcher(Settings.WatchFolder);
+        }
+
+
+
         IEnumerable<ITagSpan<MarginCoverageTag>> ITagger<MarginCoverageTag>.GetTags(NormalizedSnapshotSpanCollection spans)
         {
             foreach (SnapshotSpan curSpan in spans)
@@ -63,12 +85,49 @@ namespace PrestoCoverage
             }
         }
 
-        public event EventHandler<SnapshotSpanEventArgs> TagsChanged
+        private string GetFileName(ITextBuffer buffer)
         {
-            add { }
-            remove { }
+            buffer.Properties.TryGetProperty(
+                typeof(ITextDocument), out ITextDocument document);
+            return document == null ? null : document.FilePath;
         }
+
+
+
+        public void CreateFileWatcher(string path)
+        {
+            // Create a new FileSystemWatcher and set its properties.
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = path;
+            /* Watch for changes in LastAccess and LastWrite times, and 
+               the renaming of files or directories. */
+            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            // Only watch text files.
+            watcher.Filter = "*.*";
+
+            // Add event handlers.
+            watcher.Changed += new FileSystemEventHandler(OnChanged);
+            watcher.Created += new FileSystemEventHandler(OnChanged);
+            watcher.Deleted += new FileSystemEventHandler(OnChanged);
+            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+
+            // Begin watching.
+            watcher.EnableRaisingEvents = true;
+        }
+
+        // Define the event handlers.
+        private void OnChanged(object source, FileSystemEventArgs e)
+        {
+            //// Specify what is done when a file is changed, created, or deleted.
+            //Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
+
+            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+        }
+
+        private void OnRenamed(object source, RenamedEventArgs e)
+        {
+            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+        }
+
     }
-
-
 }
