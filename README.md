@@ -4,7 +4,7 @@
 * You should use the excellent Coverlet tool for .NET Core coverage reports.
 * Then you should install this extension to help you visualise which lines are covered in Visual Studio 2017
 
-![image](https://user-images.githubusercontent.com/1249683/46355804-6e512200-c659-11e8-862b-205401d8b555.png)
+![prestocoverage demo](https://user-images.githubusercontent.com/1249683/46406503-add44880-c703-11e8-8969-d05719ed2949.gif)
 
 **Installation**
 
