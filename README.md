@@ -20,7 +20,7 @@ https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 
 * Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
 * Visit Merging - https://github.com/ppumkin/PrestoCoverage/issues/3 
-* 
+* Automatic Coverlet Execution - https://github.com/ppumkin/PrestoCoverage/issues/5
 
 **Some other info** 
 
