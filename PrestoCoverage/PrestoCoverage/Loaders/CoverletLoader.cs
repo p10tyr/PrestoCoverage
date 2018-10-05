@@ -1,5 +1,4 @@
-﻿using Coverlet.Core;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,124 +8,118 @@ namespace PrestoCoverage.Loaders
 {
     public static class CoverletLoader
     {
-
-        public static string CoverageDirectory { get; set; }
-
-
-        private static Dictionary<string, Classes> _loadedClasses = null;
-        private static Dictionary<string, Dictionary<int, int>> _documentLineNumbers = new Dictionary<string, Dictionary<int, int>>();
-        private static readonly Dictionary<string, FileInformation> _fileEntries = new Dictionary<string, FileInformation>();
-
-
-        static CoverletLoader()
+        public static List<Models.LineCoverageDetails> Load(string coverageFilePath)
         {
-            CoverageDirectory = Settings.WatchFolder;
+            return Load(new string[1] { coverageFilePath });
         }
 
-
-        public struct FileInformation
+        public static List<Models.LineCoverageDetails> Load(string[] coverageFilePaths)
         {
-            public DateTime LastAccessTime { get; set; }
-            //public bool Exists { get; set; }
 
-            public FileInformation(DateTime lastAccessTime) //, bool exists)
+            var lineDetails = new List<Models.LineCoverageDetails>();
+
+            foreach (var sourceFileName in coverageFilePaths)
             {
-                LastAccessTime = lastAccessTime;
-                //Exists = exists;
-            }
-        }
-
-        internal static Dictionary<string, Classes> GetCoverletModules()
-        {
-            string[] coverageFilesOnDisk = Directory.GetFiles(CoverageDirectory, "*coverage.json");
-
-            //Check we know about all files on disk
-            foreach (var filePath in coverageFilesOnDisk)
-                if (!_fileEntries.ContainsKey(filePath))
-                    _fileEntries.Add(filePath, new FileInformation(new DateTime(0)));
-
-            foreach (var fileEntryKey in _fileEntries.Keys.ToList())
-            {
-                if (!File.Exists(fileEntryKey))
-                {
-                    _fileEntries.Remove(fileEntryKey);
-
-                    _loadedClasses = null;
-                    _documentLineNumbers = new Dictionary<string, Dictionary<int, int>>();
+                if (!File.Exists(sourceFileName))
                     continue;
-                }
 
-                var currentLastWriteTime = File.GetLastWriteTime(fileEntryKey);
-                if (currentLastWriteTime != _fileEntries[fileEntryKey].LastAccessTime)
+                var loadedClasses = new Dictionary<string, Classes>();
+
+                //The following code is really crappy but is there a better way to resolve file read issues... if you agree then please tell me how to fix this or make a PR. Thanks!
+
+                for (int i = 0; i < 3; i++)
                 {
-                    _loadedClasses = null;
-                    _documentLineNumbers = new Dictionary<string, Dictionary<int, int>>();
-                    _fileEntries[fileEntryKey] = new FileInformation(currentLastWriteTime);
-                }
-            }
 
-
-
-            if (_loadedClasses == null)
-            {
-                _loadedClasses = new Dictionary<string, Classes>();
-
-                foreach (var fileName in _fileEntries)
-                {
-                    using (StreamReader r = new StreamReader(fileName.Key))
+                    try
                     {
-                        string json = r.ReadToEnd();
-                        var tmpDocumentModules = JsonConvert.DeserializeObject<Dictionary<string, Documents>>(json);
-
-                        foreach (var docs in tmpDocumentModules.Select(x => x.Value))
+                        using (StreamReader r = new StreamReader(sourceFileName))
                         {
-                            foreach (var doc in docs)
+                            string json = r.ReadToEnd();
+                            var tmpDocumentModules = JsonConvert.DeserializeObject<Dictionary<string, Documents>>(json);
+
+                            foreach (var docs in tmpDocumentModules.Select(x => x.Value))
                             {
-                                try
+                                foreach (var doc in docs)
                                 {
-                                    _loadedClasses.Add(doc.Key, doc.Value);
-                                }
-                                catch (Exception x)
-                                {
-                                    Console.WriteLine($"Tried to add Document>Classes to dictionary but got exception '{x.Message}'");
+                                    try
+                                    {
+                                        loadedClasses.Add(doc.Key, doc.Value);
+                                    }
+                                    catch (Exception x)
+                                    {
+                                        Console.WriteLine($"Tried to add Document>Classes to dictionary but got exception '{x.Message}'");
+
+                                    }
                                 }
                             }
                         }
 
+                        break;
                     }
+                    catch (Exception x)//trying to catch file open exception
+                    {
+                        System.Threading.Thread.Sleep(50);
+                    }
+
+                }
+
+
+
+                foreach (var cls in loadedClasses)
+                {
+                    var lc = new Models.LineCoverageDetails();
+
+                    //Get the lines we gonna mark as covered
+                    var lines = cls.Value
+                        .Select(documents => documents.Value)
+                        .SelectMany(methods => methods.Values)
+                        .SelectMany(lns => lns.Lines)
+                        //.Select(n => new Coverlet.Lines() {  } )
+                        .ToDictionary(line => line.Key, line => line.Value);
+
+                    lc.SourceFile = sourceFileName;
+                    lc.CoveredFile = cls.Key;
+                    lc.LineVisits = lines;
+
+                    lineDetails.Add(lc);
                 }
             }
 
-            return _loadedClasses;
+            return lineDetails;
         }
 
-        public static Dictionary<int, int> GetLinesForDocument(string coverletFilePath)
+
+        //Parts of source used from https://github.com/tonerdo/coverlet/blob/master/src/coverlet.core/CoverageResult.cs
+
+        public class BranchInfo
         {
-            //First check if anything has changed with files and invalidate all cache
-            var currentSpanDoc = GetCoverletModules().FirstOrDefault(x => x.Key == coverletFilePath);
-
-            //If nothing has changed we can just return the previously calculated line values
-            if (_documentLineNumbers.TryGetValue(coverletFilePath, out var LineResults))
-                return LineResults;
-
-            if (currentSpanDoc.Value != null) //.Any())
-            {
-                //Get the lines we gonna mark as covered
-                var lines = currentSpanDoc.Value
-                    .Select(documents => documents.Value)
-                    .SelectMany(methods => methods.Values)
-                    .SelectMany(lns => lns.Lines)
-                    //.Select(n => new Coverlet.Lines() {  } )
-                    .ToDictionary(line => line.Key, line => line.Value);
-
-                _documentLineNumbers.Add(coverletFilePath, lines);
-            }
-            else
-                _documentLineNumbers.Add(coverletFilePath, new Dictionary<int, int>());
-
-
-            return _documentLineNumbers[coverletFilePath];
+            public int Line { get; set; }
+            public int Offset { get; set; }
+            public int EndOffset { get; set; }
+            public int Path { get; set; }
+            public uint Ordinal { get; set; }
+            public int Hits { get; set; }
         }
+
+        public class Lines : SortedDictionary<int, int> { }
+
+        public class Branches : List<BranchInfo> { }
+
+        public class Method
+        {
+            internal Method()
+            {
+                Lines = new Lines();
+                Branches = new Branches();
+            }
+            public Lines Lines;
+            public Branches Branches;
+        }
+        public class Methods : Dictionary<string, Method> { }
+        public class Classes : Dictionary<string, Methods> { }
+        public class Documents : Dictionary<string, Classes> { }
+        public class Modules : Dictionary<string, Documents> { }
+
 
     }
 }

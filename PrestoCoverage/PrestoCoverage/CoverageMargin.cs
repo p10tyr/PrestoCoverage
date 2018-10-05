@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
+using PrestoCoverage.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -41,6 +42,7 @@ namespace PrestoCoverage
         }
     }
 
+
     internal class CommentTagger : ITagger<MarginCoverageTag>
     {
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
@@ -48,8 +50,13 @@ namespace PrestoCoverage
         private readonly ITextView _textView;
         private readonly ITextBuffer _buffer;
 
+        //private readonly Coverage coverageTracker;
+
+
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
+            //coverageTracker = new Coverage();
+
             _textView = textView;
             _buffer = buffer;
 
@@ -58,8 +65,16 @@ namespace PrestoCoverage
             var doc = _textView.TextSnapshot.GetOpenDocumentInCurrentContextWithChanges();
             doc.TryGetTextVersion(out _loadedDocVersion);
 
+
+            foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
+            {
+                var covergeDetails = Loaders.CoverletLoader.Load(item);
+                Coverage.AddUpdateCoverages(covergeDetails);
+            }
+
             CreateFileWatcher(Settings.WatchFolder);
         }
+
 
         private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
 
@@ -72,15 +87,17 @@ namespace PrestoCoverage
                 var currentLineCount = curSpan.Snapshot.LineCount;
                 doc.TryGetTextVersion(out var currentDocVersion);
 
-                Dictionary<int, int> line_visits = Loaders.CoverletLoader.GetLinesForDocument(doc.FilePath);
+                //Dictionary<int, int> line_visits = Loaders.CoverletLoader.GetLinesForDocument(doc.FilePath);
+
+                var line_visits = Coverage.GetDocumentCoverage(doc.FilePath); //coverageTracker.GetDocumentCoverage(doc.FilePath);
 
                 List<int> lines = line_visits.Keys.ToList();
 
                 if (lines.Count < 1)
                     continue;
 
-                if (_loadedDocVersion != currentDocVersion)
-                    continue;
+                //if (_loadedDocVersion != currentDocVersion)
+                //    continue;
 
 
                 foreach (var ln in curSpan.Snapshot.Lines.Where(l => lines.Contains(l.LineNumber + 1)))
@@ -105,39 +122,62 @@ namespace PrestoCoverage
             return document == null ? null : document.FilePath;
         }
 
+        private FileSystemWatcher _fileSystemWatcher;
+
         public void CreateFileWatcher(string path)
         {
+            //if (_fileSystemWatcher != null)
+            //    return;
+
             // Create a new FileSystemWatcher and set its properties.
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = path;
+            _fileSystemWatcher = new FileSystemWatcher();
+
+            _fileSystemWatcher.Path = path;
             /* Watch for changes in LastAccess and LastWrite times, and 
                the renaming of files or directories. */
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            _fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             // Only watch text files.
-            watcher.Filter = "*.*";
+            _fileSystemWatcher.Filter = "*coverage.json";
 
             // Add event handlers.
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.Created += new FileSystemEventHandler(OnChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
+            _fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
+            _fileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
+            _fileSystemWatcher.Deleted += new FileSystemEventHandler(OnDeleted);
 
             // Begin watching.
-            watcher.EnableRaisingEvents = true;
+            _fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         // Define the event handlers.
         private void OnChanged(object source, FileSystemEventArgs e)
         {
-            //// Specify what is done when a file is changed, created, or deleted.
-            //Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
+            ////https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
+            //_fileSystemWatcher.EnableRaisingEvents = false;
+
+            //if (e.FullPath.EndsWith("coverage.json"))
+            //{
+            var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
+            Coverage.AddUpdateCoverages(covergeDetails);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+            //}
+
+            //_fileSystemWatcher.EnableRaisingEvents = true;
         }
 
-        private void OnRenamed(object source, RenamedEventArgs e)
+        private void OnDeleted(object source, FileSystemEventArgs e)
         {
+            ////https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
+            //_fileSystemWatcher.EnableRaisingEvents = false;
+
+            //if (e.FullPath.EndsWith("coverage.json"))
+            //{
+            Coverage.RemoveCoverage(e.FullPath);
+
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+            //}
+
+            //_fileSystemWatcher.EnableRaisingEvents = true;
         }
 
     }
