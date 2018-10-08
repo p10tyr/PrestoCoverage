@@ -49,13 +49,11 @@ namespace PrestoCoverage
 
         private readonly ITextView _textView;
         private readonly ITextBuffer _buffer;
-
-        //private readonly Coverage coverageTracker;
-
+        private readonly Coverage _coverage;
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
-            //coverageTracker = new Coverage();
+            _coverage = new Coverage();
 
             _textView = textView;
             _buffer = buffer;
@@ -63,13 +61,19 @@ namespace PrestoCoverage
             var filename = GetFileName(buffer);
 
             var doc = _textView.TextSnapshot.GetOpenDocumentInCurrentContextWithChanges();
+            if (doc == null) //happens when comparing code and probably other places I have not come across yet
+                return;
+
             doc.TryGetTextVersion(out _loadedDocVersion);
 
+            List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();
 
             foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
             {
-                var covergeDetails = Loaders.CoverletLoader.Load(item);
-                Coverage.AddUpdateCoverages(covergeDetails);
+                foreach (var lineCoverageDetail in Loaders.CoverletLoader.Load(item))
+                {
+                    _coverage.AddUpdateCoverage(lineCoverageDetail.SourceFile, lineCoverageDetail.CoveredFile, lineCoverageDetail.LineVisits);
+                }
             }
 
             CreateFileWatcher(Settings.WatchFolder);
@@ -87,18 +91,15 @@ namespace PrestoCoverage
                 var currentLineCount = curSpan.Snapshot.LineCount;
                 doc.TryGetTextVersion(out var currentDocVersion);
 
-                //Dictionary<int, int> line_visits = Loaders.CoverletLoader.GetLinesForDocument(doc.FilePath);
-
-                var line_visits = Coverage.GetDocumentCoverage(doc.FilePath); //coverageTracker.GetDocumentCoverage(doc.FilePath);
+                var line_visits = _coverage.GetDocumentCoverage(doc.FilePath);
 
                 List<int> lines = line_visits.Keys.ToList();
 
                 if (lines.Count < 1)
                     continue;
 
-                //if (_loadedDocVersion != currentDocVersion)
-                //    continue;
-
+                if (_loadedDocVersion != currentDocVersion)
+                    continue;
 
                 foreach (var ln in curSpan.Snapshot.Lines.Where(l => lines.Contains(l.LineNumber + 1)))
                 {
@@ -157,7 +158,9 @@ namespace PrestoCoverage
             //if (e.FullPath.EndsWith("coverage.json"))
             //{
             var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
-            Coverage.AddUpdateCoverages(covergeDetails);
+            //Coverage.AddUpdateCoverages(covergeDetails);
+            foreach (var cd in covergeDetails)
+                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
             //}
@@ -172,7 +175,7 @@ namespace PrestoCoverage
 
             //if (e.FullPath.EndsWith("coverage.json"))
             //{
-            Coverage.RemoveCoverage(e.FullPath);
+            _coverage.RemoveCoverage(e.FullPath);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
             //}
