@@ -16,9 +16,14 @@ https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 1. Visual Studio UI will refresh as files get added, deleted, renamed or udpated.
 1. Coverage files can be for any project/solution and supports miltiple instances of Visual Studio
 
+**FEATURES ADDED SO FAR**
+
+* Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
+* Detect source code change - https://github.com/ppumkin/PrestoCoverage/issues/6
+* Visit Merging - https://github.com/ppumkin/PrestoCoverage/issues/3 
+
 **TODO**
 
-* Visit Merging - https://github.com/ppumkin/PrestoCoverage/issues/3 
 * Automatic Coverlet Execution - https://github.com/ppumkin/PrestoCoverage/issues/5
 
 **Some other info** 
@@ -41,8 +46,6 @@ coverlet  C:\Code\domain\Domain.Tests.Integration\bin\Debug\Domain.Tests.Integra
 pause
 ```
 
-
-
 **Disclaimer**
 
 * I made this to help me during my daily work. 
@@ -51,7 +54,4 @@ pause
 * It is not as user friendly as I would want it.. yet.
 * It is practical for daily use. (Since I use it daily...)
 
-**FEATURES ADDED SO FAR**
 
-* Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
-* Detect source code change - https://github.com/ppumkin/PrestoCoverage/issues/6
