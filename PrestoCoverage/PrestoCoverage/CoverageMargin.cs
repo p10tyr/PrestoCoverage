@@ -50,6 +50,8 @@ namespace PrestoCoverage
         private readonly ITextView _textView;
         private readonly ITextBuffer _buffer;
         private readonly Coverage _coverage;
+        private FileSystemWatcher _fileSystemWatcher;
+
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
@@ -123,14 +125,9 @@ namespace PrestoCoverage
             return document == null ? null : document.FilePath;
         }
 
-        private FileSystemWatcher _fileSystemWatcher;
 
         public void CreateFileWatcher(string path)
         {
-            //if (_fileSystemWatcher != null)
-            //    return;
-
-            // Create a new FileSystemWatcher and set its properties.
             _fileSystemWatcher = new FileSystemWatcher();
 
             _fileSystemWatcher.Path = path;
@@ -149,38 +146,21 @@ namespace PrestoCoverage
             _fileSystemWatcher.EnableRaisingEvents = true;
         }
 
-        // Define the event handlers.
         private void OnChanged(object source, FileSystemEventArgs e)
         {
-            ////https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
-            //_fileSystemWatcher.EnableRaisingEvents = false;
-
-            //if (e.FullPath.EndsWith("coverage.json"))
-            //{
             var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
-            //Coverage.AddUpdateCoverages(covergeDetails);
+
             foreach (var cd in covergeDetails)
                 _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-            //}
-
-            //_fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         private void OnDeleted(object source, FileSystemEventArgs e)
         {
-            ////https://stackoverflow.com/questions/1764809/filesystemwatcher-changed-event-is-raised-twice
-            //_fileSystemWatcher.EnableRaisingEvents = false;
-
-            //if (e.FullPath.EndsWith("coverage.json"))
-            //{
             _coverage.RemoveCoverage(e.FullPath);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-            //}
-
-            //_fileSystemWatcher.EnableRaisingEvents = true;
         }
 
     }
