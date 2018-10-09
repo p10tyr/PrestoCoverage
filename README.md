@@ -4,7 +4,14 @@
 * Use Coverlet to generate .NET Core coverage reports.
 * Install PrestoCoverage to instantly show you which lines were vistied by your tests.
 
+*Quick demo*
+
 ![2018-10-03_14-55-38](https://user-images.githubusercontent.com/1249683/46415282-dcaae880-c71c-11e8-8c4f-76de5a3d0cb6.gif)
+
+*Multiple coverage results merging*
+
+![2018-10-09_21-54-14](https://user-images.githubusercontent.com/1249683/46698057-0036cd00-cc0e-11e8-9f77-15cf2e844007.gif)
+
 
 **Installation**
 
