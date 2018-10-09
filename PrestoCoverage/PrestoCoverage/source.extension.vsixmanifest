@@ -3,9 +3,7 @@
     <Metadata>
         <Identity Id="PrestoCoverage.3efcbc7f-b8c8-4a34-83c0-80772766a8ac" Version="1.11" Language="en-US" Publisher="Piotr Kula" />
         <DisplayName>PrestoCoverage</DisplayName>
-        <Description xml:space="preserve">Not an Enterprise? But everybody wants you to write Unit Tests? This is fast way to visualise coverage!
-
-Best used with Coverlet!</Description>
+        <Description xml:space="preserve">Not an Enterprise? Everybody wants you to write Unit Tests? With Coverlet this is the fastes way to visualise coverage...</Description>
         <MoreInfo>https://github.com/ppumkin/PrestoCoverage</MoreInfo>
         <Tags>Tools,Coding,Testing,Coverlet, Unit Testing, code coverage</Tags>
     </Metadata>

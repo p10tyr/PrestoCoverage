@@ -59,6 +59,12 @@ namespace PrestoCoverage
             doc.TryGetTextVersion(out _loadedDocVersion);
 
             CreateFileWatcher(Settings.WatchFolder);
+
+
+            var psResults = PowerShellWrapper.RunCommand(@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\runtest.ps1");
+
+
+
         }
 
         private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
