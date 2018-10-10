@@ -42,6 +42,25 @@ namespace PrestoCoverage
         }
     }
 
+    internal class Testing
+    {
+
+        public void CoverMe()
+        {
+
+            Coverlet.Core.Coverage coverage =
+                new Coverlet.Core.Coverage(
+                    @"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1",
+                    new string[0], new string[0], new string[0], string.Empty);
+
+            coverage.PrepareModules();
+
+
+            var result = coverage.GetCoverageResult();
+        }
+
+    }
+
 
     internal class CommentTagger : ITagger<MarginCoverageTag>
     {
@@ -55,6 +74,9 @@ namespace PrestoCoverage
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
+            var ts = new Testing();
+            ts.CoverMe();
+
             _coverage = new Coverage();
 
             _textView = textView;
