@@ -1,4 +1,7 @@
-﻿using Microsoft.CodeAnalysis.Text;
+﻿using EnvDTE;
+using EnvDTE80;
+using Microsoft.CodeAnalysis.Text;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -42,24 +45,41 @@ namespace PrestoCoverage
         }
     }
 
-    internal class Testing
-    {
+    //internal class Testing
+    //{
 
-        public void CoverMe()
-        {
+    //    public void CoverMe(string fullPath)
+    //    {
 
-            Coverlet.Core.Coverage coverage =
-                new Coverlet.Core.Coverage(
-                    @"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1",
-                    new string[0], new string[0], new string[0], string.Empty);
+    //        Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(fullPath, new string[0], new string[0], new string[0], string.Empty);
 
-            coverage.PrepareModules();
+    //        //@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1\PrestoCoverage.Sample.dll",
+
+    //        coverage.PrepareModules();
 
 
-            var result = coverage.GetCoverageResult();
-        }
+    //        var result = coverage.GetCoverageResult();
 
-    }
+    //        var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
+
+    //        //foreach (var md in result.Modules) //.SelectMany(x => x.Value))
+    //        //{
+
+    //        //    foreach (var item in md.Value)
+    //        //    {
+
+    //        //    }
+
+    //        //    var covergeDetails = Loaders.CoverletLoader.LoadCoverage(item);
+
+    //        //    //foreach (var cd in covergeDetails)
+    //        //    //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+    //        //}
+
+
+    //    }
+
+    //}
 
 
     internal class CommentTagger : ITagger<MarginCoverageTag>
@@ -74,8 +94,10 @@ namespace PrestoCoverage
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
-            var ts = new Testing();
-            ts.CoverMe();
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
+            string solutionDir = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
+
+            CreateFileWatcher(solutionDir, "*UnitTest.dll");
 
             _coverage = new Coverage();
 
@@ -84,23 +106,40 @@ namespace PrestoCoverage
 
             var filename = GetFileName(buffer);
 
+            //Todo refactor this into one place
             var doc = _textView.TextSnapshot.GetOpenDocumentInCurrentContextWithChanges();
             if (doc == null) //happens when comparing code and probably other places I have not come across yet
                 return;
 
             doc.TryGetTextVersion(out _loadedDocVersion);
 
-            List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();
+            //List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();
+            //foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
+            //{
+            //    foreach (var lineCoverageDetail in Loaders.CoverletLoader.Load(item))
+            //    {
+            //        _coverage.AddUpdateCoverage(lineCoverageDetail.SourceFile, lineCoverageDetail.CoveredFile, lineCoverageDetail.LineVisits);
+            //    }
+            //}
+            //CreateFileWatcher(Settings.WatchFolder, "*coverage.json");
+        }
 
-            foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
-            {
-                foreach (var lineCoverageDetail in Loaders.CoverletLoader.Load(item))
-                {
-                    _coverage.AddUpdateCoverage(lineCoverageDetail.SourceFile, lineCoverageDetail.CoveredFile, lineCoverageDetail.LineVisits);
-                }
-            }
 
-            CreateFileWatcher(Settings.WatchFolder);
+        public void loadCoverage(string fullPath)
+        {
+            Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(fullPath, new string[0], new string[0], new string[0], string.Empty);
+
+            //@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1\PrestoCoverage.Sample.dll",
+
+            coverage.PrepareModules();
+
+            var result = coverage.GetCoverageResult();
+
+            var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
+
+            foreach (var cd in covergeDetails)
+                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+
         }
 
 
@@ -111,6 +150,11 @@ namespace PrestoCoverage
             foreach (SnapshotSpan curSpan in spans)
             {
                 var doc = curSpan.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
+
+                if (doc == null) //happens on compare screens and while editing text files... just skip it
+                    continue;
+
+                //MonitorTests(doc.Project.FilePath);
 
                 var currentLineCount = curSpan.Snapshot.LineCount;
                 doc.TryGetTextVersion(out var currentDocVersion);
@@ -140,6 +184,7 @@ namespace PrestoCoverage
             }
         }
 
+
         private string GetFileName(ITextBuffer buffer)
         {
             buffer.Properties.TryGetProperty(
@@ -148,16 +193,20 @@ namespace PrestoCoverage
         }
 
 
-        public void CreateFileWatcher(string path)
+        public void CreateFileWatcher(string path, string filter)
         {
+            if (_fileSystemWatcher != null)
+                return;
+
             _fileSystemWatcher = new FileSystemWatcher();
 
             _fileSystemWatcher.Path = path;
+            _fileSystemWatcher.IncludeSubdirectories = true;
             /* Watch for changes in LastAccess and LastWrite times, and 
                the renaming of files or directories. */
             _fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             // Only watch text files.
-            _fileSystemWatcher.Filter = "*coverage.json";
+            _fileSystemWatcher.Filter = filter;
 
             // Add event handlers.
             _fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
@@ -170,16 +219,22 @@ namespace PrestoCoverage
 
         private void OnChanged(object source, FileSystemEventArgs e)
         {
-            var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
 
-            foreach (var cd in covergeDetails)
-                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+            loadCoverage(e.FullPath);
+
+            //var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
+            //
+            //foreach (var cd in covergeDetails)
+            //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
         }
 
         private void OnDeleted(object source, FileSystemEventArgs e)
         {
+            //var ts = new Testing();
+            //ts.CoverMe();
+
             _coverage.RemoveCoverage(e.FullPath);
 
             TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));

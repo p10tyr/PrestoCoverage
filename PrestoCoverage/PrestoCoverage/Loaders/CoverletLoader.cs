@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Coverlet.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,38 @@ namespace PrestoCoverage.Loaders
         {
             return Load(new string[1] { coverageFilePath });
         }
+
+        public static List<Models.LineCoverageDetails> LoadCoverage(CoverageResult coverageResults)
+        {
+            var lineDetails = new List<Models.LineCoverageDetails>();
+
+            //var l = coverageResults.Value.ToList();
+
+            foreach (var modules in coverageResults.Modules)
+            {
+                var lc = new Models.LineCoverageDetails();
+
+                //Get the lines we gonna mark as covered
+                var lines = modules.Value
+                    .Select(documents => documents.Value)
+                    .Select(classes => classes.Values)
+                    .SelectMany(methods => methods)
+                    .SelectMany(method => method.Values)
+                    .SelectMany(lns => lns.Lines)
+                    //.Select(n => new Coverlet.Lines() {  } )
+                    .ToDictionary(line => line.Key, line => line.Value);
+
+                //lc.SourceFile = sourceFileName;
+                //lc.CoveredFile = cls.Key;
+                lc.LineVisits = lines;
+
+                lineDetails.Add(lc);
+            }
+
+            return lineDetails;
+        }
+
+
 
         public static List<Models.LineCoverageDetails> Load(string[] coverageFilePaths)
         {
@@ -91,34 +124,34 @@ namespace PrestoCoverage.Loaders
 
         //Parts of source used from https://github.com/tonerdo/coverlet/blob/master/src/coverlet.core/CoverageResult.cs
 
-        public class BranchInfo
-        {
-            public int Line { get; set; }
-            public int Offset { get; set; }
-            public int EndOffset { get; set; }
-            public int Path { get; set; }
-            public uint Ordinal { get; set; }
-            public int Hits { get; set; }
-        }
+        //public class BranchInfo
+        //{
+        //    public int Line { get; set; }
+        //    public int Offset { get; set; }
+        //    public int EndOffset { get; set; }
+        //    public int Path { get; set; }
+        //    public uint Ordinal { get; set; }
+        //    public int Hits { get; set; }
+        //}
 
-        public class Lines : SortedDictionary<int, int> { }
+        //public class Lines : SortedDictionary<int, int> { }
 
-        public class Branches : List<BranchInfo> { }
+        //public class Branches : List<BranchInfo> { }
 
-        public class Method
-        {
-            internal Method()
-            {
-                Lines = new Lines();
-                Branches = new Branches();
-            }
-            public Lines Lines;
-            public Branches Branches;
-        }
-        public class Methods : Dictionary<string, Method> { }
-        public class Classes : Dictionary<string, Methods> { }
-        public class Documents : Dictionary<string, Classes> { }
-        public class Modules : Dictionary<string, Documents> { }
+        //public class Method
+        //{
+        //    internal Method()
+        //    {
+        //        Lines = new Lines();
+        //        Branches = new Branches();
+        //    }
+        //    public Lines Lines;
+        //    public Branches Branches;
+        //}
+        //public class Methods : Dictionary<string, Method> { }
+        //public class Classes : Dictionary<string, Methods> { }
+        //public class Documents : Dictionary<string, Classes> { }
+        //public class Modules : Dictionary<string, Documents> { }
 
 
     }
