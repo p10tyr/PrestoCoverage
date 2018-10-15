@@ -2,6 +2,7 @@
 using EnvDTE80;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.TestWindow.Extensibility;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -19,6 +20,13 @@ namespace PrestoCoverage
     public static class Settings
     {
         public const string WatchFolder = @"c:\coverlet";
+
+        public static event EventHandler TestExecutionFinished;
+
+        public static void OnTestExecutionFinished(object sender)
+        {
+            TestExecutionFinished?.Invoke(sender, null);
+        }
     }
 
     [Export(typeof(IViewTaggerProvider))]
@@ -35,6 +43,39 @@ namespace PrestoCoverage
         }
     }
 
+
+    [Export(typeof(ITestContainerDiscoverer))]
+    [Export(typeof(PrestoCoverageContainerDiscoverer))]
+    internal class PrestoCoverageContainerDiscoverer : ITestContainerDiscoverer
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        [ImportingConstructor]
+        internal PrestoCoverageContainerDiscoverer([Import(typeof(SVsServiceProvider))]IServiceProvider serviceProvider, [Import(typeof(IOperationState))]IOperationState operationState)
+        {
+            _serviceProvider = serviceProvider;
+            operationState.StateChanged += OperationState_StateChanged;
+        }
+
+        public Uri ExecutorUri => new Uri("executor://PrestoCoverageExecutor/v1");
+
+        public IEnumerable<ITestContainer> TestContainers => null;
+
+        public event EventHandler TestContainersUpdated;
+
+        private void OperationState_StateChanged(object sender, OperationStateChangedEventArgs e)
+        {
+            if (e.State == TestOperationStates.TestExecutionFinished)
+            {
+                var s = e.Operation;
+
+                Settings.OnTestExecutionFinished(this);
+            }
+        }
+
+
+    }
+
     internal class MarginCoverageTag : IGlyphTag
     {
         public System.Windows.Media.Brush BrushColor;
@@ -45,41 +86,7 @@ namespace PrestoCoverage
         }
     }
 
-    //internal class Testing
-    //{
 
-    //    public void CoverMe(string fullPath)
-    //    {
-
-    //        Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(fullPath, new string[0], new string[0], new string[0], string.Empty);
-
-    //        //@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1\PrestoCoverage.Sample.dll",
-
-    //        coverage.PrepareModules();
-
-
-    //        var result = coverage.GetCoverageResult();
-
-    //        var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
-
-    //        //foreach (var md in result.Modules) //.SelectMany(x => x.Value))
-    //        //{
-
-    //        //    foreach (var item in md.Value)
-    //        //    {
-
-    //        //    }
-
-    //        //    var covergeDetails = Loaders.CoverletLoader.LoadCoverage(item);
-
-    //        //    //foreach (var cd in covergeDetails)
-    //        //    //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
-    //        //}
-
-
-    //    }
-
-    //}
 
 
     internal class CommentTagger : ITagger<MarginCoverageTag>
@@ -113,6 +120,8 @@ namespace PrestoCoverage
 
             doc.TryGetTextVersion(out _loadedDocVersion);
 
+            Settings.TestExecutionFinished += Settings_TestExecutionFinished;
+
             //List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();
             //foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
             //{
@@ -124,21 +133,25 @@ namespace PrestoCoverage
             //CreateFileWatcher(Settings.WatchFolder, "*coverage.json");
         }
 
+        private void Settings_TestExecutionFinished(object sender, EventArgs e)
+        {
+            string g = sender.ToString();
+        }
 
         public void loadCoverage(string fullPath)
         {
-            Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(fullPath, new string[0], new string[0], new string[0], string.Empty);
+            //Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(fullPath, new string[0], new string[0], new string[0], string.Empty);
 
-            //@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1\PrestoCoverage.Sample.dll",
+            ////@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1\PrestoCoverage.Sample.dll",
 
-            coverage.PrepareModules();
+            //coverage.PrepareModules();
 
-            var result = coverage.GetCoverageResult();
+            //var result = coverage.GetCoverageResult();
 
-            var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
+            //var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
 
-            foreach (var cd in covergeDetails)
-                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+            //foreach (var cd in covergeDetails)
+            //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
 
         }
 
