@@ -51,6 +51,7 @@
     <Compile Include="CoverageMarginFactory.cs" />
     <Compile Include="Loaders\CoverletLoader.cs" />
     <Compile Include="Models\Coverage.cs" />
+    <Compile Include="PrestoCoverageContainerDiscoverer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,9 +64,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="coverlet.core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=31d7fc2a7e877089, processorArchitecture=MSIL">
-      <HintPath>..\packages\coverlet.core.2018.10.10.3\lib\netstandard2.0\coverlet.core.dll</HintPath>
-    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\EnvDTE.8.0.2\lib\net10\EnvDTE.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>

@@ -21,13 +21,14 @@ namespace PrestoCoverage
     {
         public const string WatchFolder = @"c:\coverlet";
 
-        public static event EventHandler TestExecutionFinished;
+        public static event EventHandler<OperationStateChangedEventArgs> TestExecutionFinished;
 
-        public static void OnTestExecutionFinished(object sender)
+        public static void OnTestExecutionFinished(object sender, OperationStateChangedEventArgs stateArgs)
         {
-            TestExecutionFinished?.Invoke(sender, null);
+            TestExecutionFinished?.Invoke(sender, stateArgs);
         }
     }
+
 
     [Export(typeof(IViewTaggerProvider))]
     [ContentType("text")]
@@ -44,37 +45,6 @@ namespace PrestoCoverage
     }
 
 
-    [Export(typeof(ITestContainerDiscoverer))]
-    [Export(typeof(PrestoCoverageContainerDiscoverer))]
-    internal class PrestoCoverageContainerDiscoverer : ITestContainerDiscoverer
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        [ImportingConstructor]
-        internal PrestoCoverageContainerDiscoverer([Import(typeof(SVsServiceProvider))]IServiceProvider serviceProvider, [Import(typeof(IOperationState))]IOperationState operationState)
-        {
-            _serviceProvider = serviceProvider;
-            operationState.StateChanged += OperationState_StateChanged;
-        }
-
-        public Uri ExecutorUri => new Uri("executor://PrestoCoverageExecutor/v1");
-
-        public IEnumerable<ITestContainer> TestContainers => null;
-
-        public event EventHandler TestContainersUpdated;
-
-        private void OperationState_StateChanged(object sender, OperationStateChangedEventArgs e)
-        {
-            if (e.State == TestOperationStates.TestExecutionFinished)
-            {
-                var s = e.Operation;
-
-                Settings.OnTestExecutionFinished(this);
-            }
-        }
-
-
-    }
 
     internal class MarginCoverageTag : IGlyphTag
     {
@@ -87,8 +57,6 @@ namespace PrestoCoverage
     }
 
 
-
-
     internal class CommentTagger : ITagger<MarginCoverageTag>
     {
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
@@ -98,13 +66,16 @@ namespace PrestoCoverage
         private readonly Coverage _coverage;
         private FileSystemWatcher _fileSystemWatcher;
 
+        //private readonly string[] testDlls;
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
             string solutionDir = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
 
-            CreateFileWatcher(solutionDir, "*UnitTest.dll");
+            //testDlls = Directory.GetFiles(Settings.WatchFolder, "*test.dll");
+
+            //CreateFileWatcher(solutionDir, "*test.dll");
 
             _coverage = new Coverage();
 
@@ -135,7 +106,22 @@ namespace PrestoCoverage
 
         private void Settings_TestExecutionFinished(object sender, EventArgs e)
         {
-            string g = sender.ToString();
+            var testDlls = Directory.GetFiles(Settings.WatchFolder, "*test.dll");
+
+            if (testDlls == null && (testDlls != null && testDlls.Length <= 0))
+                return;
+
+            var test1dl = testDlls[0];
+            Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(test1dl, new string[0], new string[0], new string[0], string.Empty);
+
+            coverage.PrepareModules();
+
+            var result = coverage.GetCoverageResult();
+
+            var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
+
+            foreach (var cd in covergeDetails)
+                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
         }
 
         public void loadCoverage(string fullPath)
