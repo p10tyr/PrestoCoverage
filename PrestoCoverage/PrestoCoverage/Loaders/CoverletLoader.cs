@@ -18,29 +18,26 @@ namespace PrestoCoverage.Loaders
         {
             var lineDetails = new List<Models.LineCoverageDetails>();
 
-            //var l = coverageResults.Value.ToList();
-
             foreach (var modules in coverageResults.Modules)
             {
-                var lc = new Models.LineCoverageDetails();
+                foreach (var doc in modules.Value)
+                {
+                    var lc = new Models.LineCoverageDetails();
 
-                //Get the lines we gonna mark as covered
-                var lines = modules.Value
-                    .Select(documents => documents.Value)
-                    .Select(classes => classes.Values)
-                    .SelectMany(methods => methods)
-                    .SelectMany(method => method.Values)
-                    .SelectMany(lns => lns.Lines)
-                    //.Select(n => new Coverlet.Lines() {  } )
-                    .ToDictionary(line => line.Key, line => line.Value);
+                    //Get the lines we gonna mark as covered
+                    var lines = doc.Value
+                        .SelectMany(methods => methods.Value)
+                        .Select(method => method.Value)
+                        .SelectMany(lns => lns.Lines)
+                        .ToDictionary(line => line.Key, line => line.Value);
 
-                //lc.SourceFile = sourceFileName;
-                //lc.CoveredFile = cls.Key;
-                lc.LineVisits = lines;
+                    lc.SourceFile = modules.Key;
+                    lc.CoveredFile = doc.Key;
+                    lc.LineVisits = lines;
 
-                lineDetails.Add(lc);
+                    lineDetails.Add(lc);
+                }
             }
-
             return lineDetails;
         }
 
@@ -120,39 +117,5 @@ namespace PrestoCoverage.Loaders
 
             return lineDetails;
         }
-
-
-        //Parts of source used from https://github.com/tonerdo/coverlet/blob/master/src/coverlet.core/CoverageResult.cs
-
-        //public class BranchInfo
-        //{
-        //    public int Line { get; set; }
-        //    public int Offset { get; set; }
-        //    public int EndOffset { get; set; }
-        //    public int Path { get; set; }
-        //    public uint Ordinal { get; set; }
-        //    public int Hits { get; set; }
-        //}
-
-        //public class Lines : SortedDictionary<int, int> { }
-
-        //public class Branches : List<BranchInfo> { }
-
-        //public class Method
-        //{
-        //    internal Method()
-        //    {
-        //        Lines = new Lines();
-        //        Branches = new Branches();
-        //    }
-        //    public Lines Lines;
-        //    public Branches Branches;
-        //}
-        //public class Methods : Dictionary<string, Method> { }
-        //public class Classes : Dictionary<string, Methods> { }
-        //public class Documents : Dictionary<string, Classes> { }
-        //public class Modules : Dictionary<string, Documents> { }
-
-
     }
 }

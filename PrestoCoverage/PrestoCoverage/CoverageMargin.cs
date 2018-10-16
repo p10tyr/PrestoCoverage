@@ -17,16 +17,85 @@ using System.Linq;
 namespace PrestoCoverage
 {
 
+
+
     public static class Settings
     {
+
+        public static Coverage Coverage { get; set; }
+
         public const string WatchFolder = @"c:\coverlet";
+
+        //public static string SolutionDirectory { get; set; }
+
+        static Settings()
+        {
+            Coverage = new Coverage();
+
+            //var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
+            //SolutionDirectory = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
+
+            _coverageSession = new Dictionary<string, Coverlet.Core.Coverage>();
+        }
+
 
         public static event EventHandler<OperationStateChangedEventArgs> TestExecutionFinished;
 
+
+        private static Dictionary<string, Coverlet.Core.Coverage> _coverageSession;
+
+        public static void OnTestExecutionStarting(object sender, OperationStateChangedEventArgs stateArgs)
+        {
+            lock (_coverageSession)
+            {
+                //var testDlls = Directory
+                //    .GetFiles(SolutionDirectory, "*test.dll", SearchOption.AllDirectories)
+                //    .Where(s => s.Contains(@"\bin\"))
+                //    .ToArray();
+
+                //if (testDlls.Length <= 0)
+                //    return;
+
+                //var conf = (Microsoft.VisualStudio.TestWindow.Extensibility.IRunSettingsConfigurationInfo)stateArgs.Operation;
+
+                //var conf2 = (Microsoft.VisualStudio.TestWindow.Extensibility.IRunSettingsService)stateArgs;
+
+                //var conf3 = (Microsoft.VisualStudio.TestWindow.Extensibility.ITest)stateArgs;
+
+
+                //foreach (var testDll in stateArgs.Operation. .Configuration.)
+                //{
+                //    var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], string.Empty);
+
+                //    _coverage.PrepareModules();
+
+                //    _coverageSession.Add(testDll, _coverage);
+                //}
+            }
+        }
+
         public static void OnTestExecutionFinished(object sender, OperationStateChangedEventArgs stateArgs)
         {
-            TestExecutionFinished?.Invoke(sender, stateArgs);
+            lock (_coverageSession)
+            {
+                var _sessions = _coverageSession.Keys.ToList();
+
+                if (!_sessions.Any())
+                    return;
+
+                foreach (var sessionKey in _sessions)
+                {
+                    var result = _coverageSession[sessionKey].GetCoverageResult();
+
+                    var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
+
+                    foreach (var cd in covergeDetails)
+                        Coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+                }
+            }
         }
+
+
     }
 
 
@@ -57,32 +126,33 @@ namespace PrestoCoverage
     }
 
 
+
+
     internal class CommentTagger : ITagger<MarginCoverageTag>
     {
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         private readonly ITextView _textView;
         private readonly ITextBuffer _buffer;
-        private readonly Coverage _coverage;
+        //private readonly Coverage _coverage;
         private FileSystemWatcher _fileSystemWatcher;
+
+        private readonly string _solutionDirectory;
+        private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
 
         //private readonly string[] testDlls;
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
             var dte = Package.GetGlobalService(typeof(DTE)) as DTE2;
-            string solutionDir = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
-
-            //testDlls = Directory.GetFiles(Settings.WatchFolder, "*test.dll");
-
-            //CreateFileWatcher(solutionDir, "*test.dll");
-
-            _coverage = new Coverage();
+            _solutionDirectory = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
 
             _textView = textView;
             _buffer = buffer;
 
-            var filename = GetFileName(buffer);
+            //_coverage = new Coverage();
+
+            //var filename = GetFileName(buffer);
 
             //Todo refactor this into one place
             var doc = _textView.TextSnapshot.GetOpenDocumentInCurrentContextWithChanges();
@@ -90,8 +160,6 @@ namespace PrestoCoverage
                 return;
 
             doc.TryGetTextVersion(out _loadedDocVersion);
-
-            Settings.TestExecutionFinished += Settings_TestExecutionFinished;
 
             //List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();
             //foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
@@ -104,25 +172,6 @@ namespace PrestoCoverage
             //CreateFileWatcher(Settings.WatchFolder, "*coverage.json");
         }
 
-        private void Settings_TestExecutionFinished(object sender, EventArgs e)
-        {
-            var testDlls = Directory.GetFiles(Settings.WatchFolder, "*test.dll");
-
-            if (testDlls == null && (testDlls != null && testDlls.Length <= 0))
-                return;
-
-            var test1dl = testDlls[0];
-            Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(test1dl, new string[0], new string[0], new string[0], string.Empty);
-
-            coverage.PrepareModules();
-
-            var result = coverage.GetCoverageResult();
-
-            var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
-
-            foreach (var cd in covergeDetails)
-                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
-        }
 
         public void loadCoverage(string fullPath)
         {
@@ -142,8 +191,6 @@ namespace PrestoCoverage
         }
 
 
-        private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
-
         IEnumerable<ITagSpan<MarginCoverageTag>> ITagger<MarginCoverageTag>.GetTags(NormalizedSnapshotSpanCollection spans)
         {
             foreach (SnapshotSpan curSpan in spans)
@@ -158,7 +205,7 @@ namespace PrestoCoverage
                 var currentLineCount = curSpan.Snapshot.LineCount;
                 doc.TryGetTextVersion(out var currentDocVersion);
 
-                var line_visits = _coverage.GetDocumentCoverage(doc.FilePath);
+                var line_visits = Settings.Coverage.GetDocumentCoverage(doc.FilePath);
 
                 List<int> lines = line_visits.Keys.ToList();
 
@@ -184,60 +231,60 @@ namespace PrestoCoverage
         }
 
 
-        private string GetFileName(ITextBuffer buffer)
-        {
-            buffer.Properties.TryGetProperty(
-                typeof(ITextDocument), out ITextDocument document);
-            return document == null ? null : document.FilePath;
-        }
+        //private string GetFileName(ITextBuffer buffer)
+        //{
+        //    buffer.Properties.TryGetProperty(
+        //        typeof(ITextDocument), out ITextDocument document);
+        //    return document == null ? null : document.FilePath;
+        //}
 
 
-        public void CreateFileWatcher(string path, string filter)
-        {
-            if (_fileSystemWatcher != null)
-                return;
+        //public void CreateFileWatcher(string path, string filter)
+        //{
+        //    if (_fileSystemWatcher != null)
+        //        return;
 
-            _fileSystemWatcher = new FileSystemWatcher();
+        //    _fileSystemWatcher = new FileSystemWatcher();
 
-            _fileSystemWatcher.Path = path;
-            _fileSystemWatcher.IncludeSubdirectories = true;
-            /* Watch for changes in LastAccess and LastWrite times, and 
-               the renaming of files or directories. */
-            _fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            // Only watch text files.
-            _fileSystemWatcher.Filter = filter;
+        //    _fileSystemWatcher.Path = path;
+        //    _fileSystemWatcher.IncludeSubdirectories = true;
+        //    /* Watch for changes in LastAccess and LastWrite times, and 
+        //       the renaming of files or directories. */
+        //    _fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+        //    // Only watch text files.
+        //    _fileSystemWatcher.Filter = filter;
 
-            // Add event handlers.
-            _fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
-            _fileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
-            _fileSystemWatcher.Deleted += new FileSystemEventHandler(OnDeleted);
+        //    // Add event handlers.
+        //    _fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
+        //    _fileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
+        //    _fileSystemWatcher.Deleted += new FileSystemEventHandler(OnDeleted);
 
-            // Begin watching.
-            _fileSystemWatcher.EnableRaisingEvents = true;
-        }
+        //    // Begin watching.
+        //    _fileSystemWatcher.EnableRaisingEvents = true;
+        //}
 
-        private void OnChanged(object source, FileSystemEventArgs e)
-        {
+        //private void OnChanged(object source, FileSystemEventArgs e)
+        //{
 
-            loadCoverage(e.FullPath);
+        //    loadCoverage(e.FullPath);
 
-            //var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
-            //
-            //foreach (var cd in covergeDetails)
-            //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+        //    //var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
+        //    //
+        //    //foreach (var cd in covergeDetails)
+        //    //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
 
-            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-        }
+        //    TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+        //}
 
-        private void OnDeleted(object source, FileSystemEventArgs e)
-        {
-            //var ts = new Testing();
-            //ts.CoverMe();
+        //private void OnDeleted(object source, FileSystemEventArgs e)
+        //{
+        //    //var ts = new Testing();
+        //    //ts.CoverMe();
 
-            _coverage.RemoveCoverage(e.FullPath);
+        //    _coverage.RemoveCoverage(e.FullPath);
 
-            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-        }
+        //    TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+        //}
 
     }
 }
