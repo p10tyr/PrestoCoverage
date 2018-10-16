@@ -1,7 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestWindow.Extensibility;
+using PrestoCoverage.Interfaces;
 using PrestoCoverage.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -15,6 +17,10 @@ namespace PrestoCoverage
         public static CoverageRepository CoverageRepository { get; set; }
 
         public const string WatchFolder = @"c:\coverlet";
+        public static FileSystemWatcher CoverageFileSystemWatcher;
+
+        public static List<ITagReloader> TagSessions { get; set; }
+
 
         //public static string SolutionDirectory { get; set; }
 
@@ -23,8 +29,22 @@ namespace PrestoCoverage
             CoverageRepository = new CoverageRepository();
 
             _coverageSession = new Dictionary<string, Coverlet.Core.Coverage>();
+            TagSessions = new List<ITagReloader>();
+
+            if (Directory.Exists(WatchFolder))
+                CreateFileWatcher(WatchFolder, "*coverage.json");
         }
 
+
+        public static void AddTagSession(ITagReloader tagReloader)
+        {
+            TagSessions.Add(tagReloader);
+        }
+
+        public static void RemoveTagSession(ITagReloader tagReloader)
+        {
+            TagSessions.Remove(tagReloader);
+        }
 
         public static event EventHandler<OperationStateChangedEventArgs> TestExecutionFinished;
 
@@ -77,77 +97,71 @@ namespace PrestoCoverage
             }
         }
 
-        //public void loadCoverage(string fullPath)
-        //{
-        //    //Coverlet.Core.Coverage coverage = new Coverlet.Core.Coverage(fullPath, new string[0], new string[0], new string[0], string.Empty);
-
-        //    ////@"C:\Projects\PrestoCoverage\PrestoCoverage\PrestoCoverage.UnitTest\bin\Debug\netcoreapp2.1\PrestoCoverage.Sample.dll",
-
-        //    //coverage.PrepareModules();
-
-        //    //var result = coverage.GetCoverageResult();
-
-        //    //var covergeDetails = Loaders.CoverletLoader.LoadCoverage(result);
-
-        //    //foreach (var cd in covergeDetails)
-        //    //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
-
-        //}
-
-        //private string GetFileName(ITextBuffer buffer)
-        //{
-        //    buffer.Properties.TryGetProperty(
-        //        typeof(ITextDocument), out ITextDocument document);
-        //    return document == null ? null : document.FilePath;
-        //}
 
 
-        //public void CreateFileWatcher(string path, string filter)
-        //{
-        //    if (_fileSystemWatcher != null)
-        //        return;
+        public static void CreateFileWatcher(string path, string filter)
+        {
+            CoverageFileSystemWatcher = new FileSystemWatcher();
 
-        //    _fileSystemWatcher = new FileSystemWatcher();
+            CoverageFileSystemWatcher.Path = path;
+            CoverageFileSystemWatcher.IncludeSubdirectories = true;
+            /* Watch for changes in LastAccess and LastWrite times, and 
+               the renaming of files or directories. */
+            CoverageFileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            // Only watch text files.
+            CoverageFileSystemWatcher.Filter = filter;
 
-        //    _fileSystemWatcher.Path = path;
-        //    _fileSystemWatcher.IncludeSubdirectories = true;
-        //    /* Watch for changes in LastAccess and LastWrite times, and 
-        //       the renaming of files or directories. */
-        //    _fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-        //    // Only watch text files.
-        //    _fileSystemWatcher.Filter = filter;
+            // Add event handlers.
+            CoverageFileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
+            CoverageFileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
+            CoverageFileSystemWatcher.Deleted += new FileSystemEventHandler(OnDeleted);
 
-        //    // Add event handlers.
-        //    _fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
-        //    _fileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
-        //    _fileSystemWatcher.Deleted += new FileSystemEventHandler(OnDeleted);
+            // Begin watching.
+            CoverageFileSystemWatcher.EnableRaisingEvents = true;
+        }
 
-        //    // Begin watching.
-        //    _fileSystemWatcher.EnableRaisingEvents = true;
-        //}
 
-        //private void OnChanged(object source, FileSystemEventArgs e)
-        //{
+        internal static void reloadTaggers()
+        {
+            List<ITagReloader> consilidator = new List<ITagReloader>();
+            foreach (var tageSession in TagSessions)
+            {
+                try
+                {
+                    tageSession.ReloadTags();
 
-        //    loadCoverage(e.FullPath);
+                }
+                catch (Exception)
+                {
+                    consilidator.Add(tageSession);
+                }
+            }
 
-        //    //var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
-        //    //
-        //    //foreach (var cd in covergeDetails)
-        //    //    _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
+            if (consilidator.Any())
+            {
+                foreach (var c in consilidator)
+                {
+                    TagSessions.Remove(c);
+                }
+            }
+        }
 
-        //    TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-        //}
+        internal static void OnChanged(object source, FileSystemEventArgs e)
+        {
+            var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
 
-        //private void OnDeleted(object source, FileSystemEventArgs e)
-        //{
-        //    //var ts = new Testing();
-        //    //ts.CoverMe();
+            foreach (var cd in covergeDetails)
+                CoverageRepository.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
 
-        //    _coverage.RemoveCoverage(e.FullPath);
+            reloadTaggers();
+        }
 
-        //    TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-        //}
+        internal static void OnDeleted(object source, FileSystemEventArgs e)
+        {
+            CoverageRepository.RemoveCoverage(e.FullPath);
+
+            reloadTaggers();
+        }
 
 
         //List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();

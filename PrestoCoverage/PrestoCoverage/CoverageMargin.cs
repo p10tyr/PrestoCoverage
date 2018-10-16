@@ -3,14 +3,15 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
+using PrestoCoverage.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Linq;
 
 namespace PrestoCoverage
 {
+
     [Export(typeof(IViewTaggerProvider))]
     [ContentType("text")]
     [TagType(typeof(MarginCoverageTag))]
@@ -35,13 +36,12 @@ namespace PrestoCoverage
         }
     }
 
-    internal class CommentTagger : ITagger<MarginCoverageTag>
+    internal class CommentTagger : ITagger<MarginCoverageTag>, ITagReloader, IDisposable
     {
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         private readonly ITextView _textView;
         private readonly ITextBuffer _buffer;
-        private readonly FileSystemWatcher _fileSystemWatcher;
 
         private readonly string _solutionDirectory;
         private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
@@ -57,9 +57,14 @@ namespace PrestoCoverage
             if (doc == null) //happens when comparing code and probably other places I have not come across yet
                 return;
 
+            PrestoCoverageCore.AddTagSession(this);
+
             doc.TryGetTextVersion(out _loadedDocVersion);
+        }
 
-
+        public void ReloadTags()
+        {
+            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
         }
 
         IEnumerable<ITagSpan<MarginCoverageTag>> ITagger<MarginCoverageTag>.GetTags(NormalizedSnapshotSpanCollection spans)
@@ -99,6 +104,18 @@ namespace PrestoCoverage
                     yield return new TagSpan<MarginCoverageTag>(todoSpan, new MarginCoverageTag(brushColor));
                 }
             }
+        }
+
+        private string GetFileName(ITextBuffer buffer)
+        {
+            buffer.Properties.TryGetProperty(
+                typeof(ITextDocument), out ITextDocument document);
+            return document == null ? null : document.FilePath;
+        }
+
+        public void Dispose()
+        {
+            PrestoCoverageCore.RemoveTagSession(this);
         }
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="CoverageMargin.cs" />
     <Compile Include="CoverageMarginFactory.cs" />
     <Compile Include="Extensions\VSExtensions.cs" />
+    <Compile Include="Interfaces\ITagReloader.cs" />
     <Compile Include="Loaders\CoverletLoader.cs" />
     <Compile Include="Models\Coverage.cs" />
     <Compile Include="PrestoCoverageContainerDiscoverer.cs" />
