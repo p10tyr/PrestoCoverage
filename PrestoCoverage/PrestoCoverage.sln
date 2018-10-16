@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrestoCoverage", "PrestoCoverage\PrestoCoverage.csproj", "{CBCFB79B-932D-4C49-A1FE-B7831A597609}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "coverlet.core", "coverlet.core\coverlet.core.csproj", "{E27B02F1-A69E-45B0-872D-D91E2F69EE79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{CBCFB79B-932D-4C49-A1FE-B7831A597609}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBCFB79B-932D-4C49-A1FE-B7831A597609}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBCFB79B-932D-4C49-A1FE-B7831A597609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E27B02F1-A69E-45B0-872D-D91E2F69EE79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E27B02F1-A69E-45B0-872D-D91E2F69EE79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E27B02F1-A69E-45B0-872D-D91E2F69EE79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E27B02F1-A69E-45B0-872D-D91E2F69EE79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

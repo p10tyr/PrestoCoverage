@@ -64,9 +64,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="coverlet.core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=31d7fc2a7e877089, processorArchitecture=MSIL">
-      <HintPath>..\packages\coverlet.core.2018.10.10.3\lib\netstandard2.0\coverlet.core.dll</HintPath>
-    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\EnvDTE.8.0.2\lib\net10\EnvDTE.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -345,6 +342,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Formats\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\coverlet.core\coverlet.core.csproj">
+      <Project>{e27b02f1-a69e-45b0-872d-d91e2f69ee79}</Project>
+      <Name>coverlet.core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
