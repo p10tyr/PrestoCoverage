@@ -53,26 +53,24 @@ namespace PrestoCoverage
 
         public static void OnTestExecutionStarting(object sender, OperationStateChangedEventArgs stateArgs)
         {
+            _coverageSession = new Dictionary<string, Coverlet.Core.Coverage>();
+
             // You can get this lovely DLL in your visual studio directory Microsoft.VisualStudio.TestWindow.Core.dll
             // var g = ((Microsoft.VisualStudio.TestWindow.Controller.Request)stateArgs.Operation); 
             // If you know a better to get the actual DLL without doing a Directory.Get files.. please let me know
 
-            lock (_coverageSession)
+            var testRequestConfiguration =
+              stateArgs.Operation.GetType()
+                  .GetProperty("Configuration", BindingFlags.NonPublic | BindingFlags.Instance)
+                  .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.RequestConfiguration;
+
+            foreach (var testDll in testRequestConfiguration.TestSources)
             {
+                var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], string.Empty);
 
-                var testRequestConfiguration =
-                  stateArgs.Operation.GetType()
-                      .GetProperty("Configuration", BindingFlags.NonPublic | BindingFlags.Instance)
-                      .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.RequestConfiguration;
+                _coverage.PrepareModules();
 
-                foreach (var testDll in testRequestConfiguration.TestSources)
-                {
-                    var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], string.Empty);
-
-                    _coverage.PrepareModules();
-
-                    _coverageSession.Add(testDll, _coverage);
-                }
+                _coverageSession.Add(testDll, _coverage);
             }
         }
 
@@ -95,6 +93,8 @@ namespace PrestoCoverage
                         CoverageRepository.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
                 }
             }
+
+            reloadTaggers();
         }
 
 
