@@ -11,7 +11,7 @@ namespace PrestoCoverage.Models
         public Dictionary<int, int> LineVisits { get; set; }
     }
 
-    public class Coverage
+    public class CoverageRepository
     {
         public List<LineCoverageDetails> LineCoverages { get; set; } = new List<LineCoverageDetails>();
 
