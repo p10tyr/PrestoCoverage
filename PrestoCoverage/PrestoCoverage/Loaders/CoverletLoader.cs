@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Coverlet.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +13,35 @@ namespace PrestoCoverage.Loaders
         {
             return Load(new string[1] { coverageFilePath });
         }
+
+        public static List<Models.LineCoverageDetails> LoadCoverage(CoverageResult coverageResults)
+        {
+            var lineDetails = new List<Models.LineCoverageDetails>();
+
+            foreach (var modules in coverageResults.Modules)
+            {
+                foreach (var doc in modules.Value)
+                {
+                    var lc = new Models.LineCoverageDetails();
+
+                    //Get the lines we gonna mark as covered
+                    var lines = doc.Value
+                        .SelectMany(methods => methods.Value)
+                        .Select(method => method.Value)
+                        .SelectMany(lns => lns.Lines)
+                        .ToDictionary(line => line.Key, line => line.Value);
+
+                    lc.SourceFile = modules.Key;
+                    lc.CoveredFile = doc.Key;
+                    lc.LineVisits = lines;
+
+                    lineDetails.Add(lc);
+                }
+            }
+            return lineDetails;
+        }
+
+
 
         public static List<Models.LineCoverageDetails> Load(string[] coverageFilePaths)
         {
@@ -87,39 +117,5 @@ namespace PrestoCoverage.Loaders
 
             return lineDetails;
         }
-
-
-        //Parts of source used from https://github.com/tonerdo/coverlet/blob/master/src/coverlet.core/CoverageResult.cs
-
-        public class BranchInfo
-        {
-            public int Line { get; set; }
-            public int Offset { get; set; }
-            public int EndOffset { get; set; }
-            public int Path { get; set; }
-            public uint Ordinal { get; set; }
-            public int Hits { get; set; }
-        }
-
-        public class Lines : SortedDictionary<int, int> { }
-
-        public class Branches : List<BranchInfo> { }
-
-        public class Method
-        {
-            internal Method()
-            {
-                Lines = new Lines();
-                Branches = new Branches();
-            }
-            public Lines Lines;
-            public Branches Branches;
-        }
-        public class Methods : Dictionary<string, Method> { }
-        public class Classes : Dictionary<string, Methods> { }
-        public class Documents : Dictionary<string, Classes> { }
-        public class Modules : Dictionary<string, Documents> { }
-
-
     }
 }

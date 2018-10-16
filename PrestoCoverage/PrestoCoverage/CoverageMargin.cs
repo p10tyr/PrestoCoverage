@@ -3,20 +3,14 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
-using PrestoCoverage.Models;
+using PrestoCoverage.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.IO;
 using System.Linq;
 
 namespace PrestoCoverage
 {
-
-    public static class Settings
-    {
-        public const string WatchFolder = @"c:\coverlet";
-    }
 
     [Export(typeof(IViewTaggerProvider))]
     [ContentType("text")]
@@ -42,47 +36,36 @@ namespace PrestoCoverage
         }
     }
 
-
-    internal class CommentTagger : ITagger<MarginCoverageTag>
+    internal class CommentTagger : ITagger<MarginCoverageTag>, ITagReloader, IDisposable
     {
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
         private readonly ITextView _textView;
         private readonly ITextBuffer _buffer;
-        private readonly Coverage _coverage;
-        private FileSystemWatcher _fileSystemWatcher;
+
+        private readonly string _solutionDirectory;
+        private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
 
 
         public CommentTagger(ITextView textView, ITextBuffer buffer)
         {
-            _coverage = new Coverage();
-
             _textView = textView;
             _buffer = buffer;
 
-            var filename = GetFileName(buffer);
-
+            //Todo refactor this into one place
             var doc = _textView.TextSnapshot.GetOpenDocumentInCurrentContextWithChanges();
             if (doc == null) //happens when comparing code and probably other places I have not come across yet
                 return;
 
+            PrestoCoverageCore.AddTagSession(this);
+
             doc.TryGetTextVersion(out _loadedDocVersion);
-
-            List<LineCoverageDetails> lcd = new List<LineCoverageDetails>();
-
-            foreach (var item in Directory.GetFiles(Settings.WatchFolder, "*coverage.json"))
-            {
-                foreach (var lineCoverageDetail in Loaders.CoverletLoader.Load(item))
-                {
-                    _coverage.AddUpdateCoverage(lineCoverageDetail.SourceFile, lineCoverageDetail.CoveredFile, lineCoverageDetail.LineVisits);
-                }
-            }
-
-            CreateFileWatcher(Settings.WatchFolder);
         }
 
-
-        private readonly Microsoft.CodeAnalysis.VersionStamp _loadedDocVersion;
+        public void ReloadTags()
+        {
+            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
+        }
 
         IEnumerable<ITagSpan<MarginCoverageTag>> ITagger<MarginCoverageTag>.GetTags(NormalizedSnapshotSpanCollection spans)
         {
@@ -90,10 +73,15 @@ namespace PrestoCoverage
             {
                 var doc = curSpan.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
 
+                if (doc == null) //happens on compare screens and while editing text files... just skip it
+                    continue;
+
+                //MonitorTests(doc.Project.FilePath);
+
                 var currentLineCount = curSpan.Snapshot.LineCount;
                 doc.TryGetTextVersion(out var currentDocVersion);
 
-                var line_visits = _coverage.GetDocumentCoverage(doc.FilePath);
+                var line_visits = PrestoCoverageCore.CoverageRepository.GetDocumentCoverage(doc.FilePath);
 
                 List<int> lines = line_visits.Keys.ToList();
 
@@ -125,43 +113,9 @@ namespace PrestoCoverage
             return document == null ? null : document.FilePath;
         }
 
-
-        public void CreateFileWatcher(string path)
+        public void Dispose()
         {
-            _fileSystemWatcher = new FileSystemWatcher();
-
-            _fileSystemWatcher.Path = path;
-            /* Watch for changes in LastAccess and LastWrite times, and 
-               the renaming of files or directories. */
-            _fileSystemWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            // Only watch text files.
-            _fileSystemWatcher.Filter = "*coverage.json";
-
-            // Add event handlers.
-            _fileSystemWatcher.Changed += new FileSystemEventHandler(OnChanged);
-            _fileSystemWatcher.Created += new FileSystemEventHandler(OnChanged);
-            _fileSystemWatcher.Deleted += new FileSystemEventHandler(OnDeleted);
-
-            // Begin watching.
-            _fileSystemWatcher.EnableRaisingEvents = true;
+            PrestoCoverageCore.RemoveTagSession(this);
         }
-
-        private void OnChanged(object source, FileSystemEventArgs e)
-        {
-            var covergeDetails = Loaders.CoverletLoader.Load(e.FullPath);
-
-            foreach (var cd in covergeDetails)
-                _coverage.AddUpdateCoverage(cd.SourceFile, cd.CoveredFile, cd.LineVisits);
-
-            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-        }
-
-        private void OnDeleted(object source, FileSystemEventArgs e)
-        {
-            _coverage.RemoveCoverage(e.FullPath);
-
-            TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(new SnapshotSpan(_buffer.CurrentSnapshot, 0, _buffer.CurrentSnapshot.Length)));
-        }
-
     }
 }
