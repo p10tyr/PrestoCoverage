@@ -57,12 +57,14 @@ namespace PrestoCoverage
 
             // You can get this lovely DLL in your visual studio directory Microsoft.VisualStudio.TestWindow.Core.dll
             // var g = ((Microsoft.VisualStudio.TestWindow.Controller.Request)stateArgs.Operation); 
-            // If you know a better to get the actual DLL without doing a Directory.Get files.. please let me know
-
+            // If you know a better to get the actual "DLL path" without doing a Directory.Get files.. please let me know
             var testRequestConfiguration =
               stateArgs.Operation.GetType()
                   .GetProperty("Configuration", BindingFlags.NonPublic | BindingFlags.Instance)
-                  .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.RequestConfiguration;
+                  .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.TestRunConfiguration;
+
+            if (testRequestConfiguration.Debug)
+                return;
 
             foreach (var testDll in testRequestConfiguration.TestSources)
             {
