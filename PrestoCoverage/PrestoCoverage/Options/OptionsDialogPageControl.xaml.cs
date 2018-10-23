@@ -80,7 +80,7 @@ namespace PrestoCoverage.Options
 
         }
 
-        private void CheckBox_ClearCoverageOnBuild_Checked(object sender, System.Windows.RoutedEventArgs e)
+        private void CheckBox_ClearCoverageOnChange_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
             GeneralSettings.Default.ClearCoverageOnChange = ClearCoverageOnChangeCheckbox.IsChecked.Value;
             GeneralSettings.Default.Save();
