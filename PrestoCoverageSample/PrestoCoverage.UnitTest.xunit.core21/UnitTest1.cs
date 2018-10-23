@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace PrestoCoverage.UnitTest
+namespace PrestoCoverage.UnitTest.xunit
 {
     public class UnitTest1
     {
@@ -17,6 +17,16 @@ namespace PrestoCoverage.UnitTest
             var result1 = sample.MissingBranchtested(0);
 
             var countResult = sample.Count(1, 1);
+
+            Assert.Equal(1, countResult);
+        }
+
+        [Fact]
+        public void Test2()
+        {
+            var sample = new Sample.SampleClass();
+
+            var result1 = sample.FlatBranching(true, true, false);
         }
     }
 }

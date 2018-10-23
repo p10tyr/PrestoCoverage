@@ -53,8 +53,11 @@ namespace PrestoCoverage
                     break;
                 case TestOperationStates.PlaylistRefresh:
                     break;
+
                 case TestOperationStates.ChangeDetectionStarting:
+                    PrestoCoverageCore.OnChangeDetected(this, e);
                     break;
+
                 case TestOperationStates.ChangeDetectionFinished:
                     break;
                 case TestOperationStates.DiscoveryStarting:
@@ -65,16 +68,20 @@ namespace PrestoCoverage
                     break;
                 case TestOperationStates.DiscoveryCanceled:
                     break;
+
                 case TestOperationStates.TestExecutionStarting:
                     PrestoCoverageCore.OnTestExecutionStarting(this, e);
                     break;
+
                 case TestOperationStates.TestExecutionStarted:
                     break;
                 case TestOperationStates.TestExecutionCanceling:
                     break;
+
                 case TestOperationStates.TestExecutionFinished:
                     PrestoCoverageCore.OnTestExecutionFinished(this, e);
                     break;
+
                 case TestOperationStates.TestExecutionCancelAndFinished:
                     break;
                 case TestOperationStates.PlaylistRefreshStarting:

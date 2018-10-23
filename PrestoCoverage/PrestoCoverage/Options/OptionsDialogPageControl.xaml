@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="PrestoCoverage.Options.OptionsDialogPageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PrestoCoverage.Options"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" Width="472.333">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <TextBox Name="ColourCovered" HorizontalAlignment="Left" Height="23" Margin="81,37,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Covered_TextChanged"/>
+        <Label Content="Hexadecimal Colour Value '#FFF0E68C' - When valid, colour will show and be saved" HorizontalAlignment="Left" Margin="10,3,-135,0" VerticalAlignment="Top" Width="587" Grid.ColumnSpan="2" Height="26"/>
+        <Label Content="Covered" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <TextBox Name="ColourPartialCovered" HorizontalAlignment="Left" Height="23" Margin="81,68,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Partial_TextChanged"/>
+        <Label Content="Partial" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <TextBox Name="ColourUncovered" HorizontalAlignment="Left" Height="23" Margin="81,100,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Uncovered_TextChanged"/>
+        <Label Content="Uncovered" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <Rectangle Name="ColourCoveredFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,37,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
+        <Rectangle Name="ColourPartialFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,68,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
+        <Rectangle Name="ColourUncoveredFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,100,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
+        <CheckBox Name="ClearCoverageOnChangeCheckbox" Content="Clear Coverage on change (e.g Build)" HorizontalAlignment="Left" Margin="81,140,0,0" VerticalAlignment="Top" Width="226" Checked="CheckBox_ClearCoverageOnChange_Checked"/>
+    </Grid>
+</UserControl>

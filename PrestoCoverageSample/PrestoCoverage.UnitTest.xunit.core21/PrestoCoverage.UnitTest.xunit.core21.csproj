@@ -4,6 +4,10 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <AssemblyName>PrestoCoverage.UnitTest.xunit</AssemblyName>
+
+    <RootNamespace>PrestoCoverage.UnitTest.xunit</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PrestoCoverage.Sample\PrestoCoverage.Sample.csproj" />
+    <ProjectReference Include="..\PrestoCoverage.Sample.core21\PrestoCoverage.Sample.core21.csproj" />
   </ItemGroup>
 
 </Project>
