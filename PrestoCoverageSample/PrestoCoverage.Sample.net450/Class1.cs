@@ -50,5 +50,9 @@
         }
 
 
+        public int DoSomething(int i, int i1)
+        {
+            return 1;
+        }
     }
 }

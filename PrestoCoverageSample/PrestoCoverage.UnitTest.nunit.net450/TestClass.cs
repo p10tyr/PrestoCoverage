@@ -12,11 +12,14 @@ namespace PrestoCoverage.UnitTest.nunit.net450
 
             sample.Counter = 10;
 
+            int result = sample.DoSomething(1, 1);
+
             var result1 = sample.MissingBranchtested(0);
 
             var countResult = sample.Count(1, 1);
 
-            Assert.Pass("Your first passing test");
+            //Assert.Pass("Your first passing test");
+            Assert.AreEqual(1, result);
         }
     }
 }
