@@ -21,6 +21,11 @@ namespace PrestoCoverage
 
         public static List<ITagReloader> TagSessions { get; set; }
 
+        public static System.Windows.Media.SolidColorBrush Colour_Covered { get; set; }
+        public static System.Windows.Media.SolidColorBrush Colour_CoveredPartial { get; set; }
+        public static System.Windows.Media.SolidColorBrush Colour_Uncovered { get; set; }
+        public static bool ClearCoverageOnChange { get; set; }
+
 
         //public static string SolutionDirectory { get; set; }
 
@@ -33,6 +38,11 @@ namespace PrestoCoverage
 
             if (Directory.Exists(WatchFolder))
                 CreateFileWatcher(WatchFolder, "*coverage.json");
+
+            Colour_Covered = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(GeneralSettings.Default.Glyph_CoveredColour));
+            Colour_CoveredPartial = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(GeneralSettings.Default.Glyph_PartialCoverColour));
+            Colour_Uncovered = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(GeneralSettings.Default.Glyph_UncoveredColour));
+            ClearCoverageOnChange = GeneralSettings.Default.ClearCoverageOnChange;
         }
 
 
@@ -99,6 +109,11 @@ namespace PrestoCoverage
             reloadTaggers();
         }
 
+        public static void OnChangeDetected(object sender, OperationStateChangedEventArgs stateArgs)
+        {
+            if (ClearCoverageOnChange)
+                CoverageRepository.ClearAll();
+        }
 
 
         public static void CreateFileWatcher(string path, string filter)

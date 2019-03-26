@@ -95,10 +95,7 @@ namespace PrestoCoverage
                 {
                     var coverage = line_visits[ln.LineNumber + 1];
 
-                    System.Windows.Media.Brush brushColor = coverage > 0 ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.Red;
-
-                    //if (_loadedDocVersion != currentDocVersion)
-                    //    brushColor = System.Windows.Media.Brushes.Orange;
+                    System.Windows.Media.Brush brushColor = coverage > 0 ? PrestoCoverageCore.Colour_Covered : PrestoCoverageCore.Colour_Uncovered;
 
                     SnapshotSpan todoSpan = new SnapshotSpan(ln.Start, ln.End);
                     yield return new TagSpan<MarginCoverageTag>(todoSpan, new MarginCoverageTag(brushColor));

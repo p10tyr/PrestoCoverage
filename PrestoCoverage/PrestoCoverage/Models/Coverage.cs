@@ -28,6 +28,15 @@ namespace PrestoCoverage.Models
             }
         }
 
+        public void ClearAll()
+        {
+            lock (LineCoverages)
+            {
+                LineCoverages = new List<LineCoverageDetails>();
+            }
+        }
+
+
         public void RemoveCoverage(string sourceFile)
         {
             lock (LineCoverages)

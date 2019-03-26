@@ -1,4 +1,4 @@
-﻿namespace PrestoCoverage.Sample
+﻿namespace PrestoCoverage.Sample.Standard20
 {
     public class SampleClass
     {
@@ -39,6 +39,14 @@
                 return number / number;
             else
                 return -1;
+        }
+
+
+        public bool FlatBranching(bool a, bool b, bool c)
+        {
+            if (a == true || (b == false && c == true)) { return true; }
+
+            return false;
         }
 
 
