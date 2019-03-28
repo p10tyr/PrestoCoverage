@@ -6,7 +6,7 @@ Visual Studio Extension
 
 Nuget Dependancy - Coverlet.Core (Fork)
 
-![Coverlet Core](https://dev.azure.com/piotrkula/piotrkula.coverlet.core/_apis/build/status/piotrkula.coverlet.core-.NET%20Desktop-CI)
+![Coverlet Core](https://dev.azure.com/piotrkula/piotrkula.coverlet.core/_apis/build/status/piotrkula.coverlet.core-.NET%20Desktop-CI) ![NuGet Downloads](https://img.shields.io/nuget/v/piotrkula.coverlet.core.svg) ![NuGet Downloads](https://img.shields.io/nuget/dt/piotrkula.coverlet.core.svg)
 
 
 ### The free and fast Visual Studio 2017 15.8+ code coverage tool built around Coverlet, the best .NET Core coverage tool!
