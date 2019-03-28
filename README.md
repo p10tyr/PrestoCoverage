@@ -4,7 +4,7 @@ Visual Studio Extension
 
 ![ExtensionVersion](https://vsmarketplacebadge.apphb.com/version/PiotrKula.prestocoverage.svg) ![Installs](https://vsmarketplacebadge.apphb.com/installs/PiotrKula.prestocoverage.svg) ![Rating](https://vsmarketplacebadge.apphb.com/rating/PiotrKula.prestocoverage.svg)
 
-Nuget Dependancy - ![Coverlet.Core](https://www.nuget.org/packages/piotrkula.coverlet.core/) (Fork)
+Nuget Dependancy - [Coverlet.Core](https://www.nuget.org/packages/piotrkula.coverlet.core) (Fork)
 
 ![Coverlet Core](https://dev.azure.com/piotrkula/piotrkula.coverlet.core/_apis/build/status/piotrkula.coverlet.core-.NET%20Desktop-CI) ![NuGet Downloads](https://img.shields.io/nuget/v/piotrkula.coverlet.core.svg) ![NuGet Downloads](https://img.shields.io/nuget/dt/piotrkula.coverlet.core.svg)
 
