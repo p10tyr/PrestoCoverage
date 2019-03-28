@@ -1,12 +1,12 @@
 # PrestoCoverage
 
-Extension
+Visual Studio Extension
+
 ![ExtensionVersion](https://vsmarketplacebadge.apphb.com/version/PiotrKula.prestocoverage.svg) ![Installs](https://vsmarketplacebadge.apphb.com/installs/PiotrKula.prestocoverage.svg) ![Rating](https://vsmarketplacebadge.apphb.com/rating/PiotrKula.prestocoverage.svg)
 
-Coverlet.Core NuGet
-![Coverlet Core](
-https://feeds.dev.azure.com/piotrkula/_apis/public/Packaging/Feeds/ed8ca68d-cdf8-41ec-8c30-0ba9dfb06f59@f93f76e1-7299-45e0-9728-9ddc6144099d/Packages/c65188b6-67f6-4888-827c-b3ca240118a5/Badge)
+Nuget Dependancy - Coverlet.Core (Fork)
 
+![Coverlet Core](https://dev.azure.com/piotrkula/piotrkula.coverlet.core/_apis/build/status/piotrkula.coverlet.core-.NET%20Desktop-CI)
 
 
 ### The free and fast Visual Studio 2017 15.8+ code coverage tool built around Coverlet, the best .NET Core coverage tool!
