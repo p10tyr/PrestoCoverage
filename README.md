@@ -11,7 +11,7 @@ Nuget Dependancy - [Coverlet.Core](https://www.nuget.org/packages/piotrkula.cove
 
 ### The free and fast Visual Studio 2017 15.8+ code coverage tool built around Coverlet, the best .NET Core coverage tool!
 
-* REQUIRES 2018 15.8 or later!
+* REQUIRES 2017 15.8 or later!
 * Use Coverlet to generate .NET Core coverage reports.
 * Install PrestoCoverage to instantly show you which lines were vistied by your tests.
 
