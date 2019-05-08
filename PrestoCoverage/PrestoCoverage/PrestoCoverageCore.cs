@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestWindow.Extensibility;
+﻿using Microsoft.VisualStudio.TestWindow.Controller;
+using Microsoft.VisualStudio.TestWindow.Extensibility;
 using PrestoCoverage.Interfaces;
 using PrestoCoverage.Models;
 using System;
@@ -68,17 +69,19 @@ namespace PrestoCoverage
             // You can get this lovely DLL in your visual studio directory Microsoft.VisualStudio.TestWindow.Core.dll
             // var g = ((Microsoft.VisualStudio.TestWindow.Controller.Request)stateArgs.Operation); 
             // If you know a better to get the actual "DLL path" without doing a Directory.Get files.. please let me know
-            var testRequestConfiguration =
-              stateArgs.Operation.GetType()
+            ITestRunRequestConfiguration testRequestConfiguration =
+              (ITestRunRequestConfiguration)stateArgs.Operation.GetType()
                   .GetProperty("Configuration", BindingFlags.NonPublic | BindingFlags.Instance)
-                  .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.TestRunConfiguration;
+                  .GetValue(stateArgs.Operation); // as Microsoft.VisualStudio.TestWindow.Controller.TestRunConfiguration;
 
             if (testRequestConfiguration.Debug)
                 return;
 
             foreach (var testDll in testRequestConfiguration.TestSources)
             {
-                var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], string.Empty);
+                //todo: new api needs revising
+                var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], new string[0],
+                    new string[0], false, string.Empty, false, null);
 
                 _coverage.PrepareModules();
 
