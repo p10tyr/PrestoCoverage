@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestWindow.Extensibility;
+using PrestoCoverage.Interfaces;
+using PrestoCoverage.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -81,7 +84,9 @@ namespace PrestoCoverage
 
                 foreach (var testDll in testRequestConfiguration.TestSources)
                 {
-                    var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], string.Empty);
+                    //Hacky McHack face here. lots of cool settings and stuff we can expand on but this just gets it going bare bones
+                    var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], new string[0],
+                        new string[0], true, string.Empty, false, null);
 
                     _coverage.PrepareModules();
 
