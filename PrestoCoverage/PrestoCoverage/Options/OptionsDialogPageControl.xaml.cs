@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace PrestoCoverage.Options
 {
@@ -8,18 +7,36 @@ namespace PrestoCoverage.Options
     /// </summary>
     public partial class OptionsDialogPageControl : UserControl
     {
-        public List<System.Drawing.Color> Colours = new List<System.Drawing.Color>();
+        //public List<System.Drawing.Color> Colours = new List<System.Drawing.Color>();
 
         public OptionsDialogPageControl()
         {
             InitializeComponent();
 
-            ColourCovered.Text = GeneralSettings.Default.Glyph_CoveredColour;
-            ColourPartialCovered.Text = GeneralSettings.Default.Glyph_PartialCoverColour;
-            ColourUncovered.Text = GeneralSettings.Default.Glyph_UncoveredColour;
+            ColourCovered.Text = PrestoCoverageCore.PrestoConfiguration.Colours.Covered;
+            ColourPartialCovered.Text = PrestoCoverageCore.PrestoConfiguration.Colours.Partial;
+            ColourUncovered.Text = PrestoCoverageCore.PrestoConfiguration.Colours.Uncovered;
 
-            ClearCoverageOnChangeCheckbox.IsChecked = GeneralSettings.Default.ClearCoverageOnChange;
+            ClearCoverageOnChangeCheckbox.IsChecked = PrestoCoverageCore.PrestoConfiguration.ClearOnBuild;
 
+            WatchFolderPath.Text = PrestoCoverageCore.PrestoConfiguration.WatchFolder.Path;
+            WatchFolderFilter.Text = PrestoCoverageCore.PrestoConfiguration.WatchFolder.Filter;
+
+            if (PrestoCoverageCore.PrestoConfiguration.IsJsonConfigDriven)
+                LockAllControls();
+        }
+
+        private void LockAllControls()
+        {
+            ColourCovered.IsEnabled = false;
+            ColourPartialCovered.IsEnabled = false;
+            ColourUncovered.IsEnabled = false;
+            ClearCoverageOnChangeCheckbox.IsEnabled = false;
+            WatchFolderFilter.IsEnabled = false;
+            WatchFolderPath.IsEnabled = false;
+
+            HeaderLabel.Content = "Configuration driven by presto.config.json";
+            HeaderLabel.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0xff, 0x00, 0x00));
         }
 
         private void TextBox_Covered_TextChanged(object sender, TextChangedEventArgs e)
@@ -80,6 +97,7 @@ namespace PrestoCoverage.Options
 
         }
 
+
         private void CheckBox_ClearCoverageOnChange_Checked(object sender, System.Windows.RoutedEventArgs e)
         {
             GeneralSettings.Default.ClearCoverageOnChange = ClearCoverageOnChangeCheckbox.IsChecked.Value;
@@ -87,5 +105,19 @@ namespace PrestoCoverage.Options
 
             PrestoCoverageCore.ClearCoverageOnChange = ClearCoverageOnChangeCheckbox.IsChecked.Value;
         }
+
+        private void WatchFolderPath_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            GeneralSettings.Default.WatchFolderPath = WatchFolderPath.Text;
+            GeneralSettings.Default.Save();
+        }
+
+        private void WatchFolderFilter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            GeneralSettings.Default.WatchFolderFilter = WatchFolderFilter.Text;
+            GeneralSettings.Default.Save();
+        }
+
+
     }
 }

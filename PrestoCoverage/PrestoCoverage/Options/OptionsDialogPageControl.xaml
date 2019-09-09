@@ -11,16 +11,22 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <TextBox Name="ColourCovered" HorizontalAlignment="Left" Height="23" Margin="81,37,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Covered_TextChanged"/>
-        <Label Content="Hexadecimal Colour Value '#FFF0E68C' - When valid, colour will show and be saved" HorizontalAlignment="Left" Margin="10,3,-135,0" VerticalAlignment="Top" Width="587" Grid.ColumnSpan="2" Height="26"/>
-        <Label Content="Covered" HorizontalAlignment="Left" Margin="10,34,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
-        <TextBox Name="ColourPartialCovered" HorizontalAlignment="Left" Height="23" Margin="81,68,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Partial_TextChanged"/>
-        <Label Content="Partial" HorizontalAlignment="Left" Margin="10,65,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
-        <TextBox Name="ColourUncovered" HorizontalAlignment="Left" Height="23" Margin="81,100,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Uncovered_TextChanged"/>
-        <Label Content="Uncovered" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
-        <Rectangle Name="ColourCoveredFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,37,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
-        <Rectangle Name="ColourPartialFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,68,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
-        <Rectangle Name="ColourUncoveredFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,100,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
-        <CheckBox Name="ClearCoverageOnChangeCheckbox" Content="Clear Coverage on change (e.g Build)" HorizontalAlignment="Left" Margin="81,140,0,0" VerticalAlignment="Top" Width="226" Checked="CheckBox_ClearCoverageOnChange_Checked"/>
+        <TextBox Name="ColourCovered" HorizontalAlignment="Left" Height="23" Margin="81,53,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Covered_TextChanged"/>
+        <Label Content="Hexadecimal Colour Value '#FFF0E68C'" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="441" Height="26"/>
+        <Label Content="Covered" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <TextBox Name="ColourPartialCovered" HorizontalAlignment="Left" Height="23" Margin="81,84,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Partial_TextChanged"/>
+        <Label Content="Partial" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <TextBox Name="ColourUncovered" HorizontalAlignment="Left" Height="23" Margin="81,116,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" TextChanged="TextBox_Uncovered_TextChanged"/>
+        <Label Content="Uncovered" HorizontalAlignment="Left" Margin="10,113,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <Rectangle Name="ColourCoveredFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,53,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
+        <Rectangle Name="ColourPartialFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,84,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
+        <Rectangle Name="ColourUncoveredFill" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="23" Margin="206,116,0,0" Stroke="Black" VerticalAlignment="Top" Width="23"/>
+        <CheckBox Name="ClearCoverageOnChangeCheckbox" Content="Clear Coverage on change (e.g Build)" HorizontalAlignment="Left" Margin="81,156,0,0" VerticalAlignment="Top" Width="226" Checked="CheckBox_ClearCoverageOnChange_Checked"/>
+        <TextBox x:Name="WatchFolderPath" HorizontalAlignment="Left" Height="23" Margin="81,190,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="370" TextChanged="WatchFolderPath_TextChanged" />
+        <Label Content="Path" HorizontalAlignment="Left" Margin="10,187,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <TextBox x:Name="WatchFolderFilter" HorizontalAlignment="Left" Height="23" Margin="81,221,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="WatchFolderFilter_TextChanged" />
+        <Label Content="Filter" HorizontalAlignment="Left" Margin="10,218,0,0" VerticalAlignment="Top" Width="71" Height="26"/>
+        <Label x:Name="HeaderLabel" Content="Entries will be saved while typing and if valid" HorizontalAlignment="Left" Margin="10,1,0,0" VerticalAlignment="Top" Width="441" Height="26"/>
+        <Label Content="After changing any settings it is best to restart Visual Studio" HorizontalAlignment="Left" Margin="10,249,0,0" VerticalAlignment="Top" Width="441" Height="26"/>
     </Grid>
 </UserControl>

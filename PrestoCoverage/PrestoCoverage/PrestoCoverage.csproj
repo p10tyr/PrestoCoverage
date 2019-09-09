@@ -64,6 +64,7 @@
     </Compile>
     <Compile Include="Interfaces\ITagReloader.cs" />
     <Compile Include="Loaders\CoverletLoader.cs" />
+    <Compile Include="Models\PrestoConfiguration.cs" />
     <Compile Include="Models\Coverage.cs" />
     <Compile Include="OptionsDialogPage.cs">
       <SubType>Component</SubType>

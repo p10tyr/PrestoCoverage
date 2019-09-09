@@ -15,36 +15,62 @@ namespace PrestoCoverage
         //SolutionDirectory = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
 
         public static CoverageRepository CoverageRepository { get; set; }
-
-        public const string WatchFolder = @"c:\coverlet";
         public static FileSystemWatcher CoverageFileSystemWatcher;
-
         public static List<ITagReloader> TagSessions { get; set; }
+
 
         public static System.Windows.Media.SolidColorBrush Colour_Covered { get; set; }
         public static System.Windows.Media.SolidColorBrush Colour_CoveredPartial { get; set; }
         public static System.Windows.Media.SolidColorBrush Colour_Uncovered { get; set; }
         public static bool ClearCoverageOnChange { get; set; }
 
+        public static PrestoConfiguration PrestoConfiguration { get; set; }
 
         //public static string SolutionDirectory { get; set; }
 
         static PrestoCoverageCore()
         {
+            LoadConfiguration();
+
             CoverageRepository = new CoverageRepository();
 
             _coverageSession = new Dictionary<string, Coverlet.Core.Coverage>();
             TagSessions = new List<ITagReloader>();
 
-            if (Directory.Exists(WatchFolder))
-                CreateFileWatcher(WatchFolder, "*coverage.json");
+            if (Directory.Exists(PrestoConfiguration.WatchFolder.Path))
+            {
+                PrestoConfiguration.WatchFolder.IsEnabled = true;
+                CreateFileWatcher(PrestoConfiguration.WatchFolder.Path, PrestoConfiguration.WatchFolder.Filter);
+            }
 
-            Colour_Covered = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(GeneralSettings.Default.Glyph_CoveredColour));
-            Colour_CoveredPartial = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(GeneralSettings.Default.Glyph_PartialCoverColour));
-            Colour_Uncovered = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(GeneralSettings.Default.Glyph_UncoveredColour));
-            ClearCoverageOnChange = GeneralSettings.Default.ClearCoverageOnChange;
+            Colour_Covered = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PrestoConfiguration.Colours.Covered));
+            Colour_CoveredPartial = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PrestoConfiguration.Colours.Partial));
+            Colour_Uncovered = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(PrestoConfiguration.Colours.Uncovered));
+            ClearCoverageOnChange = PrestoConfiguration.ClearOnBuild;
         }
 
+        private static void LoadConfiguration()
+        {
+            PrestoConfiguration = new PrestoConfiguration
+            {
+                ClearOnBuild = GeneralSettings.Default.ClearCoverageOnChange,
+
+                Colours = new PrestoConfiguration.GlyphColoursOptions
+                {
+                    Covered = GeneralSettings.Default.Glyph_CoveredColour,
+                    Partial = GeneralSettings.Default.Glyph_PartialCoverColour,
+                    Uncovered = GeneralSettings.Default.Glyph_UncoveredColour
+                },
+                WatchFolder = new PrestoConfiguration.WatchFolderOptions
+                {
+                    Path = GeneralSettings.Default.WatchFolderPath,
+                    Filter = GeneralSettings.Default.WatchFolderFilter,
+                    IsEnabled = false
+                }
+
+            };
+
+        }
 
         public static void AddTagSession(ITagReloader tagReloader)
         {

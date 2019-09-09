@@ -14,5 +14,11 @@
     <Setting Name="ClearCoverageOnChange" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="WatchFolderPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\coverlet</Value>
+    </Setting>
+    <Setting Name="WatchFolderFilter" Type="System.String" Scope="User">
+      <Value Profile="(Default)">*coverage.json</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
