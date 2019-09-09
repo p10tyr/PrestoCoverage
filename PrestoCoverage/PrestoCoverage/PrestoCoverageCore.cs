@@ -68,22 +68,36 @@ namespace PrestoCoverage
             // You can get this lovely DLL in your visual studio directory Microsoft.VisualStudio.TestWindow.Core.dll
             // var g = ((Microsoft.VisualStudio.TestWindow.Controller.Request)stateArgs.Operation); 
             // If you know a better to get the actual "DLL path" without doing a Directory.Get files.. please let me know
-            var testRequestConfiguration =
-              stateArgs.Operation.GetType()
-                  .GetProperty("Configuration", BindingFlags.NonPublic | BindingFlags.Instance)
-                  .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.TestRunConfiguration;
 
-            if (testRequestConfiguration.Debug)
-                return;
-
-            foreach (var testDll in testRequestConfiguration.TestSources)
+            try
             {
-                var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], string.Empty);
+                // This works for VS2017 but not for 2019 due to them sealing the DLL's
+                // Track this for the fix https://github.com/ppumkin/PrestoCoverage/issues/17
 
-                _coverage.PrepareModules();
 
-                _coverageSession.Add(testDll, _coverage);
+                var testRequestConfiguration = stateArgs.Operation.GetType()
+                    .GetProperty("Configuration", BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetValue(stateArgs.Operation) as Microsoft.VisualStudio.TestWindow.Controller.TestRunConfiguration;
+
+                if (testRequestConfiguration.Debug)
+                    return;
+
+                foreach (var testDll in testRequestConfiguration.TestSources)
+                {
+                    //Hacky McHack face here. lots of cool settings and stuff we can expand on but this just gets it going bare bones
+                    var _coverage = new Coverlet.Core.Coverage(testDll, new string[0], new string[0], new string[0], new string[0],
+                        new string[0], true, string.Empty, false, null);
+
+                    _coverage.PrepareModules();
+
+                    _coverageSession.Add(testDll, _coverage);
+                }
             }
+            catch (Exception ex)
+            {
+                return;
+            }
+
         }
 
         public static void OnTestExecutionFinished(object sender, OperationStateChangedEventArgs stateArgs)
