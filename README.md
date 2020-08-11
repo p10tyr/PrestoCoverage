@@ -14,7 +14,7 @@ Nuget Dependancy - [Coverlet.Core](https://www.nuget.org/packages/piotrkula.cove
 * REQUIRES 2017 15.8 or later!
 * !!!! 2019 LIMITED SUPPORT (Working on a fix!) !!!!
 * Use Coverlet to generate .NET Core coverage reports.
-* Install PrestoCoverage to instantly show you which lines were vistied by your tests.
+* Install PrestoCoverage to instantly show you which lines were visited by your tests.
 
 
 **Coverage after tests completed**
@@ -39,12 +39,12 @@ https://marketplace.visualstudio.com/items?itemName=PiotrKula.prestocoverage
 1. Install the PrestoCoverage extension 
 1. Run coverlet and save all results to `c:\coverlet\` (Check tips at the bottom)
 1. PrestoCoverage will load any files that follow the convention of `*coverage.json`
-1. Visual Studio UI will refresh as files get added, deleted, renamed or udpated.
-1. Coverage files can be for any project/solution and supports miltiple instances of Visual Studio
+1. Visual Studio UI will refresh as files get added, deleted, renamed or updated.
+1. Coverage files can be for any project/solution and supports multiple instances of Visual Studio
 
 **FEATURES ADDED SO FAR**
 
-* Autoreload - https://github.com/ppumkin/PrestoCoverage/issues/2
+* AutoReload - https://github.com/ppumkin/PrestoCoverage/issues/2
 * Detect source code change - https://github.com/ppumkin/PrestoCoverage/issues/6
 * Visit Merging - https://github.com/ppumkin/PrestoCoverage/issues/3 
 
@@ -75,9 +75,9 @@ pause
 **Disclaimer**
 
 * I made this to help me during my daily work. 
-* I am not a "Extensions developer" some things may bot be az they shud beatiful as they should. *doh*
+* I am not an "Extensions developer" somethings may not be as they should beautiful as they should. *doh*
 * There will be bugs!
-* It is not as user friendly as I would want it.. yet.
+* It is not as user friendly as I would want it... yet.
 * It is practical for daily use. (Since I use it daily...)
 
 
